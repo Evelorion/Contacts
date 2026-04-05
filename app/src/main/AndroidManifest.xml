@@ -3,6 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="auto">
 
+    <permission
+        android:name="org.fossify.permission.READ_PRIVATE_CONTACTS"
+        android:description="@string/privacy_permission_description"
+        android:label="@string/privacy_permission_label"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="org.fossify.permission.READ_PRIVATE_CONTACTS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
@@ -250,7 +257,8 @@
         <provider
             android:name=".contentproviders.MyContactsContentProvider"
             android:authorities="org.fossify.commons.contactsprovider"
-            android:exported="true" />
+            android:exported="true"
+            android:readPermission="org.fossify.permission.READ_PRIVATE_CONTACTS" />
 
         <activity-alias
             android:name=".activities.SplashActivity.Red"

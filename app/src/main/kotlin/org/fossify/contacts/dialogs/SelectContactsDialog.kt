@@ -8,6 +8,7 @@ import org.fossify.commons.models.contacts.Contact
 import org.fossify.contacts.activities.SimpleActivity
 import org.fossify.contacts.adapters.SelectContactsAdapter
 import org.fossify.contacts.databinding.DialogSelectContactBinding
+import org.fossify.contacts.extensions.getProtectedVisibleContactSources
 import java.util.Locale
 
 class SelectContactsDialog(
@@ -21,7 +22,7 @@ class SelectContactsDialog(
     init {
         var allContacts = initialContacts
         if (selectContacts == null) {
-            val contactSources = activity.getVisibleContactSources()
+            val contactSources = activity.getProtectedVisibleContactSources()
             allContacts = allContacts.filter { contactSources.contains(it.source) } as ArrayList<Contact>
 
             if (showOnlyContactsWithNumber) {

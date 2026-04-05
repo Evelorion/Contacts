@@ -47,7 +47,6 @@ import org.fossify.commons.extensions.getPhoneNumberTypeText
 import org.fossify.commons.extensions.getProperPrimaryColor
 import org.fossify.commons.extensions.getProperTextColor
 import org.fossify.commons.extensions.getPublicContactSource
-import org.fossify.commons.extensions.getVisibleContactSources
 import org.fossify.commons.extensions.hasContactPermissions
 import org.fossify.commons.extensions.hideKeyboard
 import org.fossify.commons.extensions.isVisible
@@ -123,6 +122,7 @@ import org.fossify.contacts.dialogs.ManageVisibleFieldsDialog
 import org.fossify.contacts.dialogs.MyDatePickerDialog
 import org.fossify.contacts.dialogs.SelectGroupsDialog
 import org.fossify.contacts.extensions.config
+import org.fossify.contacts.extensions.getProtectedVisibleContactSources
 import org.fossify.contacts.extensions.getCachePhotoUri
 import org.fossify.contacts.extensions.showContactSourcePicker
 import org.fossify.contacts.helpers.ADD_NEW_CONTACT_NUMBER
@@ -513,8 +513,9 @@ class EditContactActivity : ContactActivity() {
         binding.contactSuffix.beVisibleIf(showFields and SHOW_SUFFIX_FIELD != 0)
         binding.contactNickname.beVisibleIf(showFields and SHOW_NICKNAME_FIELD != 0)
 
-        binding.contactSource.beVisibleIf(showFields and SHOW_CONTACT_SOURCE_FIELD != 0)
-        binding.contactSourceImage.beVisibleIf(showFields and SHOW_CONTACT_SOURCE_FIELD != 0)
+        val showContactSource = !config.privacyProtectionEnabled && showFields and SHOW_CONTACT_SOURCE_FIELD != 0
+        binding.contactSource.beVisibleIf(showContactSource)
+        binding.contactSourceImage.beVisibleIf(showContactSource)
 
         val arePhoneNumbersVisible = showFields and SHOW_PHONE_NUMBERS_FIELD != 0
         binding.contactNumbersImage.beVisibleIf(arePhoneNumbersVisible)
@@ -892,14 +893,31 @@ class EditContactActivity : ContactActivity() {
 
     private fun setupContactSource() {
         originalContactSource = contact!!.source
+        if (config.privacyProtectionEnabled) {
+            if (!contact!!.isPrivate()) {
+                contact!!.source = SMT_PRIVATE
+            }
+            binding.contactSource.text = getString(R.string.phone_storage_hidden)
+            return
+        }
+
         getPublicContactSource(contact!!.source) {
             binding.contactSource.text = if (it == "") getString(R.string.phone_storage) else it
         }
     }
 
     private fun setupNewContact() {
-        originalContactSource = if (hasContactPermissions()) config.lastUsedContactSource else SMT_PRIVATE
         contact = getEmptyContact()
+        if (config.privacyProtectionEnabled) {
+            originalContactSource = SMT_PRIVATE
+            contact!!.source = SMT_PRIVATE
+            config.lastUsedContactSource = SMT_PRIVATE
+            binding.contactSource.text = getString(R.string.phone_storage_hidden)
+            return
+        }
+
+        originalContactSource = if (hasContactPermissions()) config.lastUsedContactSource else SMT_PRIVATE
+        contact!!.source = originalContactSource
         getPublicContactSource(contact!!.source) {
             binding.contactSource.text = if (it == "") getString(R.string.phone_storage) else it
         }
@@ -1158,6 +1176,12 @@ class EditContactActivity : ContactActivity() {
     }
 
     private fun showSelectContactSourceDialog() {
+        if (config.privacyProtectionEnabled) {
+            contact!!.source = SMT_PRIVATE
+            binding.contactSource.text = getString(R.string.phone_storage_hidden)
+            return
+        }
+
         showContactSourcePicker(contact!!.source) {
             contact!!.source = if (it == getString(R.string.phone_storage_hidden)) SMT_PRIVATE else it
             getPublicContactSource(it) {
@@ -1431,7 +1455,7 @@ class EditContactActivity : ContactActivity() {
 
         contactsHelper.getDuplicatesOfContact(contact!!, false) { contacts ->
             ensureBackgroundThread {
-                val displayContactSources = getVisibleContactSources()
+                val displayContactSources = getProtectedVisibleContactSources()
                 contacts.filter { displayContactSources.contains(it.source) }.forEach { contact ->
                     val duplicate = contactsHelper.getContactWithId(contact.id, contact.isPrivate())
                     if (duplicate != null) {

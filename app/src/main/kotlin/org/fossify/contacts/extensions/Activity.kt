@@ -47,6 +47,11 @@ fun SimpleActivity.startCallIntent(recipient: String) {
 }
 
 fun SimpleActivity.showContactSourcePicker(currentSource: String, callback: (newSource: String) -> Unit) {
+    if (config.privacyProtectionEnabled) {
+        callback(SMT_PRIVATE)
+        return
+    }
+
     ContactsHelper(this).getSaveableContactSources { sources ->
         val items = ArrayList<RadioItem>()
         var sourceNames = sources.map { it.name }
@@ -65,6 +70,22 @@ fun SimpleActivity.showContactSourcePicker(currentSource: String, callback: (new
                 callback(sources[it as Int].name)
             }
         }
+    }
+}
+
+fun Activity.getProtectedVisibleContactSources(): List<String> {
+    return if (this is SimpleActivity && config.privacyProtectionEnabled) {
+        listOf(SMT_PRIVATE)
+    } else {
+        getVisibleContactSources()
+    }
+}
+
+fun Activity.filterContactsForPrivacy(contacts: List<Contact>): ArrayList<Contact> {
+    return if (this is SimpleActivity && config.privacyProtectionEnabled) {
+        ArrayList(contacts.filter { it.isPrivate() })
+    } else {
+        ArrayList(contacts)
     }
 }
 
@@ -164,7 +185,7 @@ fun Activity.getDuplicateContacts(contact: Contact, includeCurrent: Boolean, cal
     }
     ContactsHelper(this).getDuplicatesOfContact(contact, false) { contacts ->
         ensureBackgroundThread {
-            val displayContactSources = getVisibleContactSources()
+            val displayContactSources = getProtectedVisibleContactSources()
             contacts.filter { displayContactSources.contains(it.source) }.forEach {
                 val duplicate = ContactsHelper(this).getContactWithId(it.id, it.isPrivate())
                 if (duplicate != null) {

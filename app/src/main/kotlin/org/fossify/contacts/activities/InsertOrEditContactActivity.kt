@@ -19,6 +19,7 @@ import org.fossify.contacts.databinding.ActivityInsertEditContactBinding
 import org.fossify.contacts.dialogs.ChangeSortingDialog
 import org.fossify.contacts.dialogs.FilterContactSourcesDialog
 import org.fossify.contacts.extensions.config
+import org.fossify.contacts.extensions.filterContactsForPrivacy
 import org.fossify.contacts.fragments.MyViewPagerFragment
 import org.fossify.contacts.helpers.ADD_NEW_CONTACT_NUMBER
 import org.fossify.contacts.helpers.KEY_EMAIL
@@ -250,18 +251,18 @@ class InsertOrEditContactActivity : SimpleActivity(), RefreshContactsListener {
                 return@getContacts
             }
 
-            val contacts = it.filter {
-                if (specialMimeType != null) {
+            val contacts = if (specialMimeType != null) {
+                it.filter {
                     val hasRequiredValues = when (specialMimeType) {
                         Email.CONTENT_ITEM_TYPE -> it.emails.isNotEmpty()
                         Phone.CONTENT_ITEM_TYPE -> it.phoneNumbers.isNotEmpty()
                         else -> true
                     }
                     !it.isPrivate() && hasRequiredValues
-                } else {
-                    true
-                }
-            } as ArrayList<Contact>
+                } as ArrayList<Contact>
+            } else {
+                filterContactsForPrivacy(it)
+            }
 
             val placeholderText = when (specialMimeType) {
                 Email.CONTENT_ITEM_TYPE -> getString(R.string.no_contacts_with_emails)
@@ -364,6 +365,11 @@ class InsertOrEditContactActivity : SimpleActivity(), RefreshContactsListener {
     }
 
     fun showFilterDialog() {
+        if (config.privacyProtectionEnabled) {
+            toast(R.string.private_contacts_filter_locked)
+            return
+        }
+
         FilterContactSourcesDialog(this) {
             findViewById<MyViewPagerFragment<*>>(R.id.contacts_fragment)?.forceListRedraw = true
             refreshContacts(getTabsMask())

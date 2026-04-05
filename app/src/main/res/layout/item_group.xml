@@ -4,17 +4,18 @@
     android:id="@+id/group_frame"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackground"
+    android:layout_marginTop="@dimen/tiny_margin"
+    android:layout_marginBottom="@dimen/tiny_margin"
+    android:background="@drawable/contact_card_background_ripple"
     android:clickable="true"
-    android:focusable="true"
-    android:foreground="@drawable/selector">
+    android:focusable="true">
 
     <RelativeLayout
         android:id="@+id/group_holder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="@dimen/min_row_height"
-        android:paddingStart="@dimen/normal_margin"
+        android:paddingStart="@dimen/activity_margin"
         android:paddingTop="@dimen/medium_margin"
         android:paddingEnd="@dimen/activity_margin"
         android:paddingBottom="@dimen/medium_margin">

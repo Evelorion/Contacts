@@ -5,4 +5,16 @@
     <dimen name="contact_icons_size">40dp</dimen>
     <dimen name="dialpad_button_size">60dp</dimen>
     <dimen name="top_contact_image_height">300dp</dimen>
+    <dimen name="main_tabs_elevation">8dp</dimen>
+    <dimen name="privacy_badge_size">36dp</dimen>
+    <dimen name="privacy_badge_padding">8dp</dimen>
+    <dimen name="privacy_badge_margin_end">20dp</dimen>
+    <dimen name="privacy_badge_margin_bottom">18dp</dimen>
+    <dimen name="privacy_badge_elevation">10dp</dimen>
+    <dimen name="privacy_card_horizontal_margin">16dp</dimen>
+    <dimen name="privacy_card_padding">18dp</dimen>
+    <dimen name="privacy_card_corner_radius">22dp</dimen>
+    <dimen name="privacy_card_spacing">10dp</dimen>
+    <dimen name="privacy_hint_spacing">6dp</dimen>
+    <dimen name="privacy_section_spacing">8dp</dimen>
 </resources>

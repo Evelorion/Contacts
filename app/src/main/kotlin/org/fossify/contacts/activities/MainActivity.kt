@@ -27,6 +27,7 @@ import org.fossify.contacts.databinding.ActivityMainBinding
 import org.fossify.contacts.dialogs.ChangeSortingDialog
 import org.fossify.contacts.dialogs.FilterContactSourcesDialog
 import org.fossify.contacts.extensions.config
+import org.fossify.contacts.extensions.filterContactsForPrivacy
 import org.fossify.contacts.extensions.handleGenericContactClick
 import org.fossify.contacts.extensions.tryImportContactsFromFile
 import org.fossify.contacts.fragments.FavoritesFragment
@@ -140,6 +141,7 @@ class MainActivity : SimpleActivity(), RefreshContactsListener {
             background.applyColorFilter(properPrimaryColor)
             beVisibleIf(config.showDialpadButton)
         }
+        updatePrivacyBadge(properPrimaryColor)
 
         isFirstResume = false
         checkShortcuts()
@@ -309,6 +311,14 @@ class MainActivity : SimpleActivity(), RefreshContactsListener {
         binding.mainTabsHolder.setBackgroundColor(bottomBarColor)
     }
 
+    private fun updatePrivacyBadge(primaryColor: Int) {
+        binding.mainPrivacyBadge.apply {
+            background.applyColorFilter(primaryColor)
+            setImageDrawable(resources.getColoredDrawableWithColor(R.drawable.ic_lock_vector, primaryColor.getContrastColor()))
+            beVisibleIf(config.privacyProtectionEnabled)
+        }
+    }
+
     private fun getInactiveTabIndexes(activeIndex: Int) = (0 until binding.mainTabsHolder.tabCount).filter { it != activeIndex }
 
     private fun getSelectedTabDrawableIds(): ArrayList<Int> {
@@ -433,6 +443,11 @@ class MainActivity : SimpleActivity(), RefreshContactsListener {
     }
 
     fun showFilterDialog() {
+        if (config.privacyProtectionEnabled) {
+            toast(R.string.private_contacts_filter_locked)
+            return
+        }
+
         FilterContactSourcesDialog(this) {
             findViewById<MyViewPagerFragment<*>>(R.id.contacts_fragment)?.forceListRedraw = true
             refreshContacts(TAB_CONTACTS or TAB_FAVORITES)
@@ -492,17 +507,19 @@ class MainActivity : SimpleActivity(), RefreshContactsListener {
                 return@getContacts
             }
 
+            val filteredContacts = filterContactsForPrivacy(contacts)
+
             if (refreshTabsMask and TAB_CONTACTS != 0) {
                 findViewById<MyViewPagerFragment<*>>(R.id.contacts_fragment)?.apply {
                     skipHashComparing = true
-                    refreshContacts(contacts)
+                    refreshContacts(filteredContacts)
                 }
             }
 
             if (refreshTabsMask and TAB_FAVORITES != 0) {
                 findViewById<MyViewPagerFragment<*>>(R.id.favorites_fragment)?.apply {
                     skipHashComparing = true
-                    refreshContacts(contacts)
+                    refreshContacts(filteredContacts)
                 }
             }
 
@@ -511,7 +528,7 @@ class MainActivity : SimpleActivity(), RefreshContactsListener {
                     if (refreshTabsMask == TAB_GROUPS) {
                         skipHashComparing = true
                     }
-                    refreshContacts(contacts)
+                    refreshContacts(filteredContacts)
                 }
             }
 

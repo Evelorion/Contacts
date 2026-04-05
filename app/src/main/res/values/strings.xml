@@ -54,8 +54,23 @@
     <string name="manage_shown_contact_fields">Manage shown contact fields</string>
     <string name="contacts">Contacts</string>
     <string name="show_only_contacts_with_numbers">Show only contacts with phone numbers</string>
-    <string name="show_private_contacts">Show private contacts to Fossify Phone, Messages, and Calendar</string>
+    <string name="show_private_contacts">Share private contacts with Fossify Phone and Messages</string>
     <string name="merge_duplicate_contacts">Merge duplicate contacts</string>
+    <string name="privacy_protection">Privacy protection</string>
+    <string name="privacy_protection_label">Block third-party contact access</string>
+    <string name="privacy_protection_summary">When private contact sharing is enabled, only this app and approved Fossify builds signed with the same key can read that data.</string>
+    <string name="privacy_protection_hint">Unauthorized apps receive an empty contact result instead of your private contacts.</string>
+    <string name="privacy_permission_label">Read Fossify private contacts</string>
+    <string name="privacy_permission_description">Allows approved Fossify apps signed with the same certificate to read private contacts shared by Contacts.</string>
+    <string name="privacy_badge_content_description">Privacy protection enabled</string>
+    <string name="private_contacts_filter_locked">Privacy protection is on, so only private contacts are shown.</string>
+    <string name="migrate_contacts_to_private_storage">Move public contacts into private storage</string>
+    <string name="migrate_contacts_to_private_confirmation">This copies visible system contacts into Fossify private storage and removes the public copies so other apps can no longer read them. Continue?</string>
+    <string name="migrating_contacts_to_private">Moving contacts into private storage…</string>
+    <string name="no_public_contacts_to_migrate">No public contacts found to move.</string>
+    <string name="migrate_contacts_to_private_failed">No contacts were moved into private storage.</string>
+    <string name="migrate_contacts_to_private_success">%1$d contacts moved into private storage.</string>
+    <string name="migrate_contacts_to_private_partial">%1$d contacts were copied into private storage. Please verify whether public copies still remain.</string>
 
     <!-- Favorites -->
     <string name="no_favorites">Seems like you haven\'t added any favorite contacts yet.</string>

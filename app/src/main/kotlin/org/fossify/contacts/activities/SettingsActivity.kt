@@ -5,11 +5,13 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
+import org.fossify.commons.dialogs.ConfirmationDialog
 import org.fossify.commons.dialogs.FilePickerDialog
 import org.fossify.commons.dialogs.RadioGroupDialog
 import org.fossify.commons.extensions.*
 import org.fossify.commons.helpers.*
 import org.fossify.commons.models.RadioItem
+import org.fossify.commons.models.contacts.Contact
 import org.fossify.contacts.R
 import org.fossify.contacts.databinding.ActivitySettingsBinding
 import org.fossify.contacts.dialogs.ExportContactsDialog
@@ -58,6 +60,8 @@ class SettingsActivity : SimpleActivity() {
         setupShowCallConfirmation()
         setupShowDialpadButton()
         setupShowPrivateContacts()
+        setupPrivacyProtection()
+        setupMigrateContactsToPrivateStorage()
         setupOnContactClick()
         setupDefaultTab()
         setupEnableAutomaticBackups()
@@ -68,6 +72,7 @@ class SettingsActivity : SimpleActivity() {
 
         arrayOf(
             binding.settingsColorCustomizationSectionLabel,
+            binding.settingsPrivacySectionLabel,
             binding.settingsGeneralSettingsLabel,
             binding.settingsMainScreenLabel,
             binding.settingsListViewLabel,
@@ -210,6 +215,79 @@ class SettingsActivity : SimpleActivity() {
         binding.settingsShowPrivateContactsHolder.setOnClickListener {
             binding.settingsShowPrivateContacts.toggle()
             config.showPrivateContacts = binding.settingsShowPrivateContacts.isChecked
+        }
+    }
+
+    private fun setupPrivacyProtection() {
+        binding.settingsPrivacyProtection.isChecked = config.privacyProtectionEnabled
+        binding.settingsPrivacyProtectionHolder.setOnClickListener {
+            binding.settingsPrivacyProtection.toggle()
+            config.privacyProtectionEnabled = binding.settingsPrivacyProtection.isChecked
+            if (binding.settingsPrivacyProtection.isChecked) {
+                config.lastUsedContactSource = SMT_PRIVATE
+            }
+        }
+    }
+
+    private fun setupMigrateContactsToPrivateStorage() {
+        binding.contactsMigrateToPrivateHolder.setOnClickListener {
+            handlePermission(PERMISSION_READ_CONTACTS) { canRead ->
+                if (!canRead) {
+                    return@handlePermission
+                }
+
+                handlePermission(PERMISSION_WRITE_CONTACTS) { canWrite ->
+                    if (!canWrite) {
+                        return@handlePermission
+                    }
+
+                    ConfirmationDialog(this, getString(R.string.migrate_contacts_to_private_confirmation)) {
+                        migrateContactsToPrivateStorage()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun migrateContactsToPrivateStorage() {
+        toast(R.string.migrating_contacts_to_private)
+        val contactsHelper = ContactsHelper(this)
+        contactsHelper.getContacts(true) { contacts ->
+            ensureBackgroundThread {
+                val publicContacts = ArrayList(contacts.filterNot { it.isPrivate() })
+                if (publicContacts.isEmpty()) {
+                    runOnUiThread {
+                        toast(R.string.no_public_contacts_to_migrate)
+                    }
+                    return@ensureBackgroundThread
+                }
+
+                val migratedPublicContacts = ArrayList<Contact>()
+                publicContacts.forEach { publicContact ->
+                    val privateCopy = publicContact.copy(
+                        id = 0,
+                        source = SMT_PRIVATE,
+                        contactId = 0,
+                        thumbnailUri = ""
+                    )
+
+                    if (contactsHelper.insertContact(privateCopy)) {
+                        migratedPublicContacts.add(publicContact)
+                    }
+                }
+
+                val deletedPublicCopies = migratedPublicContacts.isNotEmpty() && contactsHelper.deleteContacts(ArrayList(migratedPublicContacts))
+                config.lastUsedContactSource = SMT_PRIVATE
+
+                runOnUiThread {
+                    when {
+                        migratedPublicContacts.isEmpty() -> toast(R.string.migrate_contacts_to_private_failed)
+                        deletedPublicCopies && migratedPublicContacts.size == publicContacts.size ->
+                            toast(getString(R.string.migrate_contacts_to_private_success, migratedPublicContacts.size))
+                        else -> toast(getString(R.string.migrate_contacts_to_private_partial, migratedPublicContacts.size))
+                    }
+                }
+            }
         }
     }
 

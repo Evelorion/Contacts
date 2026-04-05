@@ -64,6 +64,68 @@
                 layout="@layout/divider" />
 
             <TextView
+                android:id="@+id/settings_privacy_section_label"
+                style="@style/SettingsSectionLabelStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/privacy_protection" />
+
+            <LinearLayout
+                android:id="@+id/settings_privacy_protection_holder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/privacy_card_horizontal_margin"
+                android:layout_marginTop="@dimen/privacy_section_spacing"
+                android:layout_marginEnd="@dimen/privacy_card_horizontal_margin"
+                android:layout_marginBottom="@dimen/privacy_section_spacing"
+                android:background="@drawable/card_background_ripple"
+                android:clickable="true"
+                android:focusable="true"
+                android:orientation="vertical"
+                android:padding="@dimen/privacy_card_padding">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <org.fossify.commons.views.MyTextView
+                        android:id="@+id/settings_privacy_protection_label"
+                        style="@style/SettingsTextLabelStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toStartOf="@+id/settings_privacy_protection"
+                        android:paddingEnd="@dimen/privacy_card_spacing"
+                        android:text="@string/privacy_protection_label" />
+
+                    <org.fossify.commons.views.MyMaterialSwitch
+                        android:id="@+id/settings_privacy_protection"
+                        style="@style/SettingsSwitchStyle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:text="" />
+
+                </RelativeLayout>
+
+                <org.fossify.commons.views.MyTextView
+                    android:id="@+id/settings_privacy_protection_summary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/privacy_card_spacing"
+                    android:alpha="0.8"
+                    android:text="@string/privacy_protection_summary" />
+
+                <org.fossify.commons.views.MyTextView
+                    android:id="@+id/settings_privacy_protection_hint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/privacy_hint_spacing"
+                    android:alpha="0.65"
+                    android:text="@string/privacy_protection_hint" />
+
+            </LinearLayout>
+
+            <TextView
                 android:id="@+id/settings_general_settings_label"
                 style="@style/SettingsSectionLabelStyle"
                 android:layout_width="match_parent"
@@ -420,6 +482,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/migrating" />
+
+            <RelativeLayout
+                android:id="@+id/contacts_migrate_to_private_holder"
+                style="@style/SettingsHolderTextViewOneLinerStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <org.fossify.commons.views.MyTextView
+                    android:id="@+id/contacts_migrate_to_private"
+                    style="@style/SettingsTextLabelStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/migrate_contacts_to_private_storage" />
+
+            </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/contacts_export_holder"

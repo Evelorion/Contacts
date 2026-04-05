@@ -22,28 +22,35 @@ class ImportContactsDialog(val activity: SimpleActivity, val path: String, priva
 
     init {
         val binding = DialogImportContactsBinding.inflate(activity.layoutInflater).apply {
-            targetContactSource = activity.config.lastUsedContactSource
-            activity.getPublicContactSource(targetContactSource) {
-                importContactsTitle.setText(it)
-                if (it.isEmpty()) {
-                    ContactsHelper(activity).getContactSources {
-                        val localSource = it.firstOrNull { it.name == SMT_PRIVATE }
-                        if (localSource != null) {
-                            targetContactSource = localSource.name
-                            activity.runOnUiThread {
-                                importContactsTitle.setText(localSource.publicName)
+            if (activity.config.privacyProtectionEnabled) {
+                targetContactSource = SMT_PRIVATE
+                importContactsTitle.setText(activity.getString(R.string.phone_storage_hidden))
+                importContactsTitle.isClickable = false
+                importContactsTitle.isFocusable = false
+            } else {
+                targetContactSource = activity.config.lastUsedContactSource
+                activity.getPublicContactSource(targetContactSource) {
+                    importContactsTitle.setText(it)
+                    if (it.isEmpty()) {
+                        ContactsHelper(activity).getContactSources {
+                            val localSource = it.firstOrNull { it.name == SMT_PRIVATE }
+                            if (localSource != null) {
+                                targetContactSource = localSource.name
+                                activity.runOnUiThread {
+                                    importContactsTitle.setText(localSource.publicName)
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            importContactsTitle.setOnClickListener {
-                activity.showContactSourcePicker(targetContactSource) {
-                    targetContactSource = if (it == activity.getString(R.string.phone_storage_hidden)) SMT_PRIVATE else it
-                    activity.getPublicContactSource(it) {
-                        val title = if (it == "") activity.getString(R.string.phone_storage) else it
-                        importContactsTitle.setText(title)
+                importContactsTitle.setOnClickListener {
+                    activity.showContactSourcePicker(targetContactSource) {
+                        targetContactSource = if (it == activity.getString(R.string.phone_storage_hidden)) SMT_PRIVATE else it
+                        activity.getPublicContactSource(it) {
+                            val title = if (it == "") activity.getString(R.string.phone_storage) else it
+                            importContactsTitle.setText(title)
+                        }
                     }
                 }
             }

@@ -18,4 +18,12 @@ class Config(context: Context) : BaseConfig(context) {
         set(autoBackupContactSources) = prefs.edit().remove(AUTO_BACKUP_CONTACT_SOURCES).putStringSet(AUTO_BACKUP_CONTACT_SOURCES, autoBackupContactSources)
             .apply()
 
+    var privacyProtectionEnabled: Boolean
+        get() = prefs.getBoolean(PRIVACY_PROTECTION_ENABLED, true)
+        set(privacyProtectionEnabled) = prefs.edit().putBoolean(PRIVACY_PROTECTION_ENABLED, privacyProtectionEnabled).apply()
+
+    var privacyAllowedPackages: Set<String>
+        get() = prefs.getStringSet(PRIVACY_ALLOWED_PACKAGES, setOf())?.toSet() ?: emptySet()
+        set(privacyAllowedPackages) = prefs.edit().remove(PRIVACY_ALLOWED_PACKAGES).putStringSet(PRIVACY_ALLOWED_PACKAGES, privacyAllowedPackages).apply()
+
 }

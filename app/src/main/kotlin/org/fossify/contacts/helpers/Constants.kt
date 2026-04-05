@@ -17,6 +17,8 @@ const val AUTOMATIC_BACKUP_REQUEST_CODE = 10001
 const val AUTO_BACKUP_INTERVAL_IN_DAYS = 1
 
 const val AUTO_BACKUP_CONTACT_SOURCES = "auto_backup_contact_sources"
+const val PRIVACY_ALLOWED_PACKAGES = "privacy_allowed_packages"
+const val PRIVACY_PROTECTION_ENABLED = "privacy_protection_enabled"
 
 // extras used at third party intents
 const val KEY_NAME = "name"

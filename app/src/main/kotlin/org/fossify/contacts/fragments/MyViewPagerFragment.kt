@@ -28,6 +28,7 @@ import org.fossify.contacts.adapters.GroupsAdapter
 import org.fossify.contacts.databinding.FragmentLayoutBinding
 import org.fossify.contacts.databinding.FragmentLettersLayoutBinding
 import org.fossify.contacts.extensions.config
+import org.fossify.contacts.extensions.getProtectedVisibleContactSources
 import org.fossify.contacts.helpers.AVOID_CHANGING_TEXT_TAG
 import org.fossify.contacts.helpers.AVOID_CHANGING_VISIBILITY_TAG
 import org.fossify.contacts.helpers.Config
@@ -120,7 +121,9 @@ abstract class MyViewPagerFragment<Binding : MyViewPagerFragment.InnerBinding>(c
             return
         }
 
-        if (config.lastUsedContactSource.isEmpty()) {
+        if (config.privacyProtectionEnabled) {
+            config.lastUsedContactSource = SMT_PRIVATE
+        } else if (config.lastUsedContactSource.isEmpty()) {
             val grouped = contacts.groupBy { it.source }.maxWithOrNull(compareBy { it.value.size })
             config.lastUsedContactSource = grouped?.key ?: ""
         }
@@ -129,7 +132,7 @@ abstract class MyViewPagerFragment<Binding : MyViewPagerFragment.InnerBinding>(c
         val filtered = when (this) {
             is GroupsFragment -> contacts
             is FavoritesFragment -> {
-                val contactSources = activity!!.getVisibleContactSources()
+                val contactSources = activity!!.getProtectedVisibleContactSources()
                 val favouriteContacts = contacts
                     .filter { it.starred == 1 && contactSources.contains(it.source) }
 
@@ -141,7 +144,7 @@ abstract class MyViewPagerFragment<Binding : MyViewPagerFragment.InnerBinding>(c
             }
 
             else -> {
-                val contactSources = activity!!.getVisibleContactSources()
+                val contactSources = activity!!.getProtectedVisibleContactSources()
                 contacts.filter { contactSources.contains(it.source) }
             }
         }
