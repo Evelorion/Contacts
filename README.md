@@ -1,43 +1,72 @@
-# Fossify Contacts
+# 通讯录私密增强版
 <img alt="Logo" src="graphics/icon.webp" width="120" />
 
-<a href='https://play.google.com/store/apps/details?id=org.fossify.contacts'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png' height=80/></a> <a href="https://f-droid.org/packages/org.fossify.contacts/"><img src="https://fdroid.gitlab.io/artwork/badge/get-it-on-en.svg" alt="Get it on F-Droid" height=80/></a> <a href="https://apt.izzysoft.de/fdroid/index/apk/org.fossify.contacts"><img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png" alt="Get it on IzzyOnDroid" height=80/></a>
+这是基于 Fossify Contacts 修改后的个人版本，重点放在联系人隐私保护和界面优化。
 
-Introducing Fossify Contacts - the next evolution in contact management. Poised to redefine how you manage your contacts, our app combines simplicity with advanced features, tailored for both personal and professional use.  
+## 版本说明
 
-🔍 **SMART SEARCH & FIELD CUSTOMIZATION:**  
-Locate contacts quickly with our intelligent search feature. Customize visible fields, enjoy a user-friendly interface, and find contacts effortlessly, saving time and enhancing productivity.
+这个仓库展示的是我修改后的版本，不是原版仓库首页说明。
 
-✉️ **GROUP MANAGEMENT & COMMUNICATION:**  
-Effortlessly manage contact groups for streamlined communication. Our app facilitates easy grouping for batch emails or SMS, with features to create favorite lists and rename groups, enhancing your organizational capabilities.
+本版本主要目标：
 
-🔄 **RELIABLE BACKUP & EXPORT OPTIONS:**  
-Ensure your contacts are always safe with our reliable backup system. Seamlessly export or import contacts in vCard format, making data migration and backup a breeze.
+- 阻止第三方应用直接读取私密联系人
+- 允许同签名的自家应用正常访问私密联系人
+- 提供联系人私有化迁移能力
+- 优化主界面、联系人列表、设置页的视觉效果
 
-🌐 **OPEN-SOURCE TRANSPARENCY:**  
-Built on an open-source platform, Fossify Contacts champions transparency and user trust. Access our code on GitHub and become part of a community that values privacy, openness, and collaborative improvement.
+## 主要修改内容
 
-🖼️ **PERSONALIZED USER EXPERIENCE:**  
-Customize your contact management with ease. Our app offers flexible settings and design options, allowing you to tailor the interface to your liking. Sort contacts, choose themes, and personalize your experience for maximum convenience.
+### 1. 私密联系人权限保护
 
-🔋 **EFFICIENT & LIGHTWEIGHT:**  
-Optimized for performance, Fossify Contacts is designed to be light on your device's resources. It not only organizes your contacts efficiently but also contributes to longer battery life, ensuring smooth operation.
+- 新增 `org.fossify.permission.READ_PRIVATE_CONTACTS` 的 `signature` 级别权限
+- 给通讯录 `ContentProvider` 增加读取权限限制
+- 增加 `PrivacyGuard` 校验调用方签名与包名
+- 未授权访问返回空 `Cursor`，避免读取方闪退
 
-🚀 **ADVANCED SYNCHRONIZATION:**  
-Whether you choose to store your contacts locally or prefer syncing them across devices using different means, our app ensures a smooth, efficient, and secure management experience.
+### 2. 私密联系人写入逻辑
 
-🔐 **PRIVACY-FIRST APPROACH:**  
-Your contact information remains confidential with Fossify Contacts. We prioritize your privacy, ensuring your data is never shared with third-party apps.
+- 隐私保护开启后，新建联系人默认写入私有存储
+- 编辑联系人时优先保持在私有存储
+- 导入 VCF 联系人时优先导入私有存储
+- 联系人主列表和选择器优先展示私密联系人
 
-🌙 **MODERN DESIGN & USER-FRIENDLY INTERFACE:**  
-Enjoy a clean, modern design with a user-friendly interface. The app features material design themes and a supports dynamic theming, providing a visually appealing and comfortable user experience.
+### 3. 旧联系人迁移
 
-Download the app now and elevate your contact management to new heights. Your journey to efficient, secure, and intuitive contact organization begins here.
+- 设置页新增迁移入口
+- 可以把原来落在公开通讯录中的联系人迁移到私有存储
+- 迁移后，第三方通讯录应用将无法继续直接读取这些私密联系人
 
-➡️ Explore more Fossify apps: https://www.fossify.org<br>
-➡️ Open-Source Code: https://www.github.com/FossifyOrg<br>
-➡️ Join the community on Reddit: https://www.reddit.com/r/Fossify<br>
-➡️ Connect on Telegram: https://t.me/Fossify
+### 4. 界面优化
+
+- 主界面增加隐私保护状态提示
+- 设置页增加隐私保护说明与操作入口
+- 联系人列表改成更清晰的卡片式样
+- 统一优化圆角、间距、阴影与留白
+
+## 关键修改入口
+
+- `app/src/main/AndroidManifest.xml`
+- `app/src/main/kotlin/org/fossify/contacts/contentproviders/MyContactsContentProvider.kt`
+- `app/src/main/kotlin/org/fossify/contacts/helpers/PrivacyGuard.kt`
+- `app/src/main/kotlin/org/fossify/contacts/activities/SettingsActivity.kt`
+- `app/src/main/kotlin/org/fossify/contacts/activities/EditContactActivity.kt`
+- `app/src/main/kotlin/org/fossify/contacts/dialogs/ImportContactsDialog.kt`
+
+## 发行说明
+
+GitHub Release 中上传的是当前修改版构建产物。
+
+注意：
+
+- 当前 Release 附件为 `unsigned` APK
+- 原因是当前构建环境没有正式签名证书
+- 如果需要可直接安装的正式版，需要再使用你自己的签名证书重新打包
+
+## 仓库说明
+
+- 默认分支：`private-ui-edition`
+- 这个分支保存的是我当前这套隐私增强和界面优化修改
+- 原版 Fossify 项目请以官方仓库为准
 
 <div align="center">
 <img alt="App image" src="fastlane/metadata/android/en-US/images/phoneScreenshots/1_en-US.png" width="30%">
