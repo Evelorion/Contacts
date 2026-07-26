@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 头像底。颜色在代码里按联系人 id 取模着色，
+     所以这里的 solid 只是占位，实际会被 setTint 覆盖。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <solid android:color="?attr/colorPrimary" />
+</shape>

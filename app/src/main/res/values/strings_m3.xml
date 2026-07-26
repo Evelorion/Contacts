@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  M3 改版新增的文案。单独一个文件，合并上游 Fossify 更新时不会打架。
+
+  只放**设计稿里出现过的**新文案。已有的（联系人 / 收藏 / 设置 / 搜索…）
+  一律复用 strings.xml 里的，重复定义会导致改一处漏一处。
+-->
+<resources>
+
+    <!-- 主页 -->
+    <string name="m3_profile_initial" translatable="false">我</string>
+    <string name="m3_search_hint">搜索联系人</string>
+    <string name="m3_fab_new">新建</string>
+    <!-- %1$s = 联系人条数（已格式化的千分位），%2$s = 同步状态 -->
+    <string name="m3_subtitle_with_sync">%1$s 位 · %2$s</string>
+    <string name="m3_subtitle_count">%s 位</string>
+    <string name="m3_sync_state_synced">已同步</string>
+    <string name="m3_sync_state_syncing">同步中</string>
+    <string name="m3_sync_state_offline">离线</string>
+    <string name="m3_sync_state_never">未同步</string>
+
+    <!-- 筛选 chip -->
+    <string name="m3_filter_all">全部</string>
+
+    <!-- 搜索页 -->
+    <string name="m3_search_input_hint">搜索姓名或号码</string>
+    <string name="m3_search_recent">最近搜索</string>
+    <string name="m3_search_result_count">%d 个结果</string>
+    <string name="m3_search_empty_title">没有找到「%s」</string>
+    <string name="m3_search_empty_desc">试试其他姓名、拼音首字母或号码片段</string>
+    <string name="m3_search_clear">清空</string>
+
+    <!-- 详情页快捷动作 -->
+    <string name="m3_action_call">拨号</string>
+    <string name="m3_action_sms">短信</string>
+    <string name="m3_action_video">视频</string>
+    <string name="m3_action_mail">邮件</string>
+    <string name="m3_detail_groups">所属群组</string>
+    <string name="m3_detail_edit">编辑联系人</string>
+    <string name="m3_copied">已复制</string>
+
+    <!-- 编辑页 -->
+    <string name="m3_edit_add_field">添加更多字段</string>
+    <string name="m3_edit_change_photo">更换头像</string>
+
+    <!-- 设置页：外观 -->
+    <string name="m3_settings_appearance">外观</string>
+    <string name="m3_settings_palette">配色</string>
+    <string name="m3_palette_default">默认紫</string>
+    <string name="m3_palette_teal">青绿</string>
+    <string name="m3_palette_warm">暖橙</string>
+    <string name="m3_settings_dark_mode">深色主题</string>
+    <string name="m3_dark_follow_system">跟随系统</string>
+    <string name="m3_dark_always_off">始终关闭</string>
+    <string name="m3_dark_always_on">始终开启</string>
+
+    <!-- 设置页：显示与排序 -->
+    <string name="m3_settings_display">显示与排序</string>
+    <string name="m3_settings_pinyin">拼音首字母索引</string>
+    <string name="m3_settings_pinyin_desc">按姓氏拼音分组并显示 A–Z 索引</string>
+    <string name="m3_settings_compact">紧凑列表密度</string>
+    <string name="m3_settings_compact_desc">每屏显示更多联系人</string>
+    <string name="m3_settings_show_filter">显示筛选栏</string>
+    <string name="m3_settings_show_filter_desc">在搜索栏下方显示「全部 / 常用 / 群组」</string>
+
+</resources>

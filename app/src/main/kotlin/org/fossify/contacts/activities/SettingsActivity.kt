@@ -13,6 +13,16 @@ import org.fossify.commons.helpers.*
 import org.fossify.commons.models.RadioItem
 import org.fossify.commons.models.contacts.Contact
 import org.fossify.contacts.R
+import org.fossify.contacts.ui.themeColor
+import org.fossify.contacts.ui.M3Theme
+import org.fossify.contacts.sync.net.SessionStore
+import org.fossify.contacts.dialogs.FilterContactSourcesDialog
+import org.fossify.contacts.dialogs.ChangeSortingDialog
+import org.fossify.commons.dialogs.ChangeViewTypeDialog
+import com.google.android.material.R as MaterialR
+import android.widget.TextView
+import android.widget.LinearLayout
+import android.view.LayoutInflater
 import org.fossify.contacts.databinding.ActivitySettingsBinding
 import org.fossify.contacts.dialogs.ExportContactsDialog
 import org.fossify.contacts.dialogs.ManageAutoBackupsDialog
@@ -40,6 +50,8 @@ class SettingsActivity : SimpleActivity() {
     private var ignoredExportContactSources = HashSet<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // 必须在 setContentView 之前
+        M3Theme.apply(this)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         setupEdgeToEdge(padBottomSystem = listOf(binding.settingsNestedScrollview))
@@ -75,6 +87,10 @@ class SettingsActivity : SimpleActivity() {
         setupImportContacts()
         setupSync()
         setupLocalEncryption()
+        setupM3Account()
+        setupM3Palette()
+        setupM3DarkMode()
+        setupM3DisplayOptions()
         updateTextColors(binding.settingsHolder)
 
         arrayOf(
@@ -513,4 +529,110 @@ class SettingsActivity : SimpleActivity() {
             }
         }
     }
+
+    // ══════════════════════════════════════════════════ M3 外观与显示
+
+    /** 账号卡。没配置同步就整块隐藏 —— 显示一个空账号比不显示更让人困惑。 */
+    private fun setupM3Account() {
+        val session = SessionStore(this)
+        binding.settingsM3AccountCard.beVisibleIf(session.isConfigured)
+        if (!session.isConfigured) return
+
+        binding.settingsM3AccountName.text = session.username
+        binding.settingsM3AccountDetail.text = session.baseUrl
+        binding.settingsM3AccountCard.setOnClickListener {
+            startActivity(Intent(this, SyncSetupActivity::class.java))
+        }
+    }
+
+    /**
+     * 配色三选一。
+     *
+     * chip 是代码生成的而不是写死在 XML 里 —— 以后加第四套配色时
+     * 只要往 M3Theme.Palette 里加一个枚举值，这里自动多一个 chip。
+     */
+    private fun setupM3Palette() {
+        val palettes = listOf(
+            M3Theme.Palette.DEFAULT to R.string.m3_palette_default,
+            M3Theme.Palette.TEAL to R.string.m3_palette_teal,
+            M3Theme.Palette.WARM to R.string.m3_palette_warm,
+        )
+        val current = M3Theme.palette(this)
+        val container = binding.settingsM3PaletteChips
+        container.removeAllViews()
+
+        val inflater = LayoutInflater.from(this)
+        val gap = resources.getDimensionPixelSize(R.dimen.m3_chip_gap)
+
+        palettes.forEachIndexed { index, (palette, labelRes) ->
+            val chip = inflater.inflate(R.layout.item_m3_chip, container, false) as TextView
+            chip.setText(labelRes)
+            chip.isSelected = palette == current
+            chip.setTextColor(
+                themeColor(
+                    if (palette == current) MaterialR.attr.colorOnSecondaryContainer
+                    else MaterialR.attr.colorOnSurfaceVariant
+                )
+            )
+            (chip.layoutParams as LinearLayout.LayoutParams).marginEnd =
+                if (index == palettes.lastIndex) 0 else gap
+            chip.setOnClickListener { M3Theme.switchPalette(this, palette) }
+            container.addView(chip)
+        }
+    }
+
+    /**
+     * 深色主题三选一，不是开关。
+     *
+     * 两态开关表达不了「跟随系统」—— 会逼用户在两个都不对的选项里选一个。
+     */
+    private fun setupM3DarkMode() {
+        val modes = listOf(
+            M3Theme.DarkMode.FOLLOW_SYSTEM to R.string.m3_dark_follow_system,
+            M3Theme.DarkMode.LIGHT to R.string.m3_dark_always_off,
+            M3Theme.DarkMode.DARK to R.string.m3_dark_always_on,
+        )
+        val current = M3Theme.darkMode(this)
+        binding.settingsM3DarkModeValue.text =
+            getString(modes.first { it.first == current }.second)
+
+        binding.settingsM3DarkModeHolder.setOnClickListener {
+            val items = modes.mapIndexed { i, (_, labelRes) ->
+                RadioItem(i, getString(labelRes))
+            } as ArrayList<RadioItem>
+            RadioGroupDialog(this, items, modes.indexOfFirst { it.first == current }) { chosen ->
+                M3Theme.switchDarkMode(this, modes[chosen as Int].first)
+            }
+        }
+    }
+
+    /**
+     * 排序 / 筛选来源 / 视图类型。
+     *
+     * 这三项原来挂在主页的溢出菜单里。新主页顶栏按设计稿只有「我」一个入口，
+     * 没有溢出菜单，所以搬到设置页 —— 它们本来就是显示偏好。
+     */
+    private fun setupM3DisplayOptions() {
+        binding.settingsM3SortHolder.setOnClickListener {
+            ChangeSortingDialog(this, showCustomSorting = false) { }
+        }
+
+        binding.settingsM3FilterHolder.apply {
+            // 隐私保护开着时联系人来源被锁定，这一项点了也没用，直接禁掉
+            val locked = config.privacyProtectionEnabled
+            alpha = if (locked) 0.4f else 1f
+            setOnClickListener {
+                if (locked) {
+                    toast(R.string.private_contacts_filter_locked)
+                } else {
+                    FilterContactSourcesDialog(this@SettingsActivity) { }
+                }
+            }
+        }
+
+        binding.settingsM3ViewTypeHolder.setOnClickListener {
+            ChangeViewTypeDialog(this) { }
+        }
+    }
+
 }

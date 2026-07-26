@@ -13,6 +13,7 @@ import org.fossify.commons.helpers.ensureBackgroundThread
 import org.fossify.commons.models.contacts.Contact
 import org.fossify.commons.models.contacts.Group
 import org.fossify.contacts.R
+import org.fossify.contacts.ui.M3Theme
 import org.fossify.contacts.adapters.ContactsAdapter
 import org.fossify.contacts.databinding.ActivityGroupContactsBinding
 import org.fossify.contacts.dialogs.SelectContactsDialog
@@ -35,6 +36,8 @@ class GroupContactsActivity : SimpleActivity(), RemoveFromGroupListener, Refresh
     protected var contact: Contact? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // 必须在 setContentView 之前 —— 晚了的话已 inflate 的 View 会留着旧主题的颜色
+        M3Theme.apply(this)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         updateTextColors(binding.groupContactsCoordinator)

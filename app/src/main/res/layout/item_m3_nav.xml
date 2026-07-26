@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  底部导航的一项。M3 规范：选中时图标外面出现一个 64×32 的胶囊高亮，
+  文字同时加深。只靠颜色区分选中态对色觉障碍用户不友好，胶囊是形状线索。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="0dp"
+    android:layout_height="match_parent"
+    android:layout_weight="1"
+    android:background="?android:attr/selectableItemBackgroundBorderless"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingTop="12dp"
+    android:paddingBottom="16dp">
+
+    <FrameLayout
+        android:id="@+id/nav_pill"
+        android:layout_width="@dimen/m3_nav_pill_width"
+        android:layout_height="@dimen/m3_nav_pill_height"
+        android:background="@drawable/m3_bg_nav_pill">
+
+        <ImageView
+            android:id="@+id/nav_icon"
+            android:layout_width="@dimen/m3_nav_icon_size"
+            android:layout_height="@dimen/m3_nav_icon_size"
+            android:layout_gravity="center"
+            android:importantForAccessibility="no" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/nav_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.Contacts.LabelSmall" />
+
+</LinearLayout>

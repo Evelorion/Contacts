@@ -7,6 +7,7 @@ import org.fossify.commons.extensions.beVisibleIf
 import org.fossify.commons.extensions.toast
 import org.fossify.commons.extensions.value
 import org.fossify.contacts.R
+import org.fossify.contacts.ui.M3Theme
 import org.fossify.contacts.activities.SimpleActivity
 import org.fossify.contacts.databinding.ActivityLocalEncryptionBinding
 import org.fossify.contacts.sync.VaultManager
@@ -33,6 +34,8 @@ class LocalEncryptionActivity : SimpleActivity() {
     private var switching = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // 必须在 setContentView 之前 —— 晚了的话已 inflate 的 View 会留着旧主题的颜色
+        M3Theme.apply(this)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         setupListeners()

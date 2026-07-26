@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Material Symbols Rounded · search -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960"
+    android:tint="?attr/colorOnSurfaceVariant">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M380,600q-92,0-156,-64t-64,-156q0,-92 64,-156t156,-64q92,0 156,64t64,156q0,37 -11.5,69.5T555,512l217,217q11,11 11,28t-11,28q-11,11 -28,11t-28,-11L499,568q-30,26 -69,39t-50,13ZM380,520q58,0 99,-41t41,-99q0,-58 -41,-99t-99,-41q-58,0 -99,41t-41,99q0,58 41,99t99,41Z" />
+</vector>

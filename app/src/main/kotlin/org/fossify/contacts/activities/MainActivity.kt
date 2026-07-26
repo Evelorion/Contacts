@@ -4,16 +4,11 @@ import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.ShortcutInfo
-import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Icon
 import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
 import androidx.viewpager.widget.ViewPager
-import me.grantland.widget.AutofitHelper
 import org.fossify.commons.databases.ContactsDatabase
-import org.fossify.commons.databinding.BottomTablayoutItemBinding
-import org.fossify.commons.dialogs.ChangeViewTypeDialog
-import org.fossify.commons.dialogs.RadioGroupDialog
 import org.fossify.commons.extensions.*
 import org.fossify.commons.helpers.*
 import org.fossify.commons.models.FAQItem
@@ -38,6 +33,12 @@ import org.fossify.contacts.interfaces.RefreshContactsListener
 import java.util.Arrays
 import org.fossify.contacts.sync.localdb.EncryptedDatabases
 import org.fossify.contacts.sync.work.SyncScheduler
+import org.fossify.contacts.ui.M3BottomNav
+import org.fossify.contacts.ui.M3FilterChips
+import org.fossify.contacts.ui.M3Theme
+import org.fossify.contacts.sync.db.SyncDatabase
+import org.fossify.contacts.sync.net.SessionStore
+import java.text.NumberFormat
 
 class MainActivity : SimpleActivity(), RefreshContactsListener {
     private var werePermissionsHandled = false
@@ -50,23 +51,143 @@ class MainActivity : SimpleActivity(), RefreshContactsListener {
     private var storedFontSize = 0
     private var storedShowTabs = 0
 
-    override var isSearchBarEnabled = true
+    // 顶栏没有搜索框了 —— 搜索是独立的一页（M3 的 docked search bar 模式）
+    override var isSearchBarEnabled = false
 
     private val binding by viewBinding(ActivityMainBinding::inflate)
 
+    private lateinit var bottomNav: M3BottomNav
+    private lateinit var filterChips: M3FilterChips
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        // 必须在 setContentView 之前 —— 晚了的话已经 inflate 的 View 会留着旧主题的颜色
+        M3Theme.apply(this)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         appLaunched(BuildConfig.APPLICATION_ID)
-        setupOptionsMenu()
-        refreshMenuItems()
         setupEdgeToEdge(
-            padBottomImeAndSystem = listOf(binding.mainTabsHolder),
+            padBottomImeAndSystem = listOf(binding.mainBottomNav),
         )
         storeStateVariables()
-        setupTabs()
+        setupHeader()
+        setupBottomNav()
+        setupFilterChips()
         checkContactPermissions()
         checkWhatsNewDialog()
+    }
+
+    // ────────────────────────────────────────────────────────── M3 顶栏
+
+    private fun setupHeader() {
+        binding.mainSearchBar.setOnClickListener {
+            startActivity(Intent(this, SearchActivity::class.java))
+            // 搜索页自己有进入动画（从下往上），关掉系统默认的横向切换
+            overridePendingTransition(0, 0)
+        }
+        binding.mainProfileAvatar.setOnClickListener { launchSettings() }
+        binding.mainFab.setOnClickListener {
+            startActivity(Intent(this, EditContactActivity::class.java))
+        }
+    }
+
+    /**
+     * 副标题显示「N 位 · 同步状态」。
+     *
+     * 没配置同步时只显示条数 —— 挂一个「未同步」在那里会让人以为出了问题，
+     * 而实际上用户只是没开这个功能。
+     *
+     * 同步状态存在 Room 里（sync_state 表），必须异步读。所以这里先把条数
+     * 显示出来，状态查到之后再补上 —— 副标题不该为了一个次要信息卡住首屏。
+     */
+    private fun updateSubtitle(contactCount: Int) {
+        val count = NumberFormat.getInstance().format(contactCount)
+        binding.mainSubtitle.text = getString(R.string.m3_subtitle_count, count)
+
+        if (!SessionStore(this).isConfigured) return
+
+        ensureBackgroundThread {
+            val state = SyncDatabase.get(this).syncDao().getState()
+            val label = when {
+                state == null || state.lastSyncAt == 0L -> R.string.m3_sync_state_never
+                state.lastError.isNotEmpty() -> R.string.m3_sync_state_offline
+                else -> R.string.m3_sync_state_synced
+            }
+            runOnUiThread {
+                if (isDestroyed || isFinishing) return@runOnUiThread
+                binding.mainSubtitle.text =
+                    getString(R.string.m3_subtitle_with_sync, count, getString(label))
+            }
+        }
+    }
+
+    // ────────────────────────────────────────────────────── M3 底部导航
+
+    /**
+     * 底部导航固定三项：联系人 / 收藏 / 设置。
+     *
+     * 注意这和 config.showTabs 是两回事 —— showTabs 控制的是 ViewPager 里
+     * 有哪几个 fragment。导航的前两项映射到 ViewPager 的页，第三项跳设置页。
+     * 用户关掉了「收藏」页时，第二项也要一起隐藏，否则点了会跳到不存在的页。
+     */
+    private fun setupBottomNav() {
+        bottomNav = M3BottomNav(binding.mainBottomNav)
+        bottomNav.setItems(M3BottomNav.defaultItems()) { index ->
+            when (index) {
+                NAV_CONTACTS -> switchToPage(TAB_CONTACTS)
+                NAV_FAVORITES -> switchToPage(TAB_FAVORITES)
+                NAV_SETTINGS -> {
+                    launchSettings()
+                    // 设置是另一个 Activity，不是页签 —— 高亮要退回原来那项，
+                    // 否则用户返回后会看到"设置"仍然是选中态
+                    bottomNav.select(currentNavIndex())
+                }
+            }
+        }
+        bottomNav.select(currentNavIndex())
+    }
+
+    private fun switchToPage(tabMask: Int) {
+        val index = tabsList.filter { config.showTabs and it != 0 }.indexOf(tabMask)
+        if (index >= 0) {
+            binding.viewPager.currentItem = index
+            updateTitleForPage(index)
+        }
+    }
+
+    private fun currentNavIndex(): Int {
+        val visible = tabsList.filter { config.showTabs and it != 0 }
+        return when (visible.getOrNull(binding.viewPager.currentItem)) {
+            TAB_FAVORITES -> NAV_FAVORITES
+            else -> NAV_CONTACTS
+        }
+    }
+
+    private fun updateTitleForPage(index: Int) {
+        val visible = tabsList.filter { config.showTabs and it != 0 }
+        binding.mainTitle.setText(
+            when (visible.getOrNull(index)) {
+                TAB_FAVORITES -> org.fossify.commons.R.string.favorites_tab
+                TAB_GROUPS -> org.fossify.commons.R.string.groups_tab
+                else -> org.fossify.commons.R.string.contacts_tab
+            }
+        )
+    }
+
+    // ─────────────────────────────────────────────────────── 筛选 chip
+
+    /**
+     * 群组页在 1a 规范型里不进底部导航（导航只有三项），
+     * 用筛选 chip 进入。只在用户开着「群组」页时才显示这一栏。
+     */
+    private fun setupFilterChips() {
+        val hasGroups = config.showTabs and TAB_GROUPS != 0
+        binding.mainFilterScroll.beVisibleIf(hasGroups)
+        if (!hasGroups) return
+
+        filterChips = M3FilterChips(binding.mainFilterChips)
+        filterChips.setItems(listOf(R.string.m3_filter_all, org.fossify.commons.R.string.groups_tab)) { index ->
+            switchToPage(if (index == 0) TAB_CONTACTS else TAB_GROUPS)
+        }
     }
 
     private fun checkContactPermissions() {
@@ -109,14 +230,11 @@ class MainActivity : SimpleActivity(), RefreshContactsListener {
         }
 
         val properPrimaryColor = getProperPrimaryColor()
-        binding.mainTabsHolder.background = ColorDrawable(getProperBackgroundColor())
-        binding.mainTabsHolder.setSelectedTabIndicatorColor(properPrimaryColor)
         getAllFragments().forEach {
             it?.setupColors(getProperTextColor(), properPrimaryColor)
         }
-
-        updateMenuColors()
-        setupTabColors()
+        bottomNav.select(currentNavIndex())
+        updateTitleForPage(binding.viewPager.currentItem)
 
         val configStartNameWithSurname = config.startNameWithSurname
         if (storedStartNameWithSurname != configStartNameWithSurname) {
@@ -170,85 +288,11 @@ class MainActivity : SimpleActivity(), RefreshContactsListener {
     }
 
     override fun onBackPressedCompat(): Boolean {
-        return if (binding.mainMenu.isSearchOpen) {
-            binding.mainMenu.closeSearch()
-            true
-        } else {
-            false
-        }
+        // 搜索现在是独立 Activity，主页没有要先关掉的浮层
+        return false
     }
 
-    private fun refreshMenuItems() {
-        val currentFragment = getCurrentFragment()
-        binding.mainMenu.requireToolbar().menu.apply {
-            findItem(R.id.sort).isVisible = currentFragment != findViewById(R.id.groups_fragment)
-            findItem(R.id.filter).isVisible = currentFragment != findViewById(R.id.groups_fragment)
-            findItem(R.id.dialpad).isVisible = !config.showDialpadButton
-            findItem(R.id.change_view_type).isVisible = currentFragment == findViewById(R.id.favorites_fragment)
-            findItem(R.id.column_count).isVisible = currentFragment == findViewById(R.id.favorites_fragment) && config.viewType == VIEW_TYPE_GRID
-            findItem(R.id.more_apps_from_us).isVisible = !resources.getBoolean(org.fossify.commons.R.bool.hide_google_relations)
-        }
-    }
-
-    private fun setupOptionsMenu() {
-        binding.mainMenu.requireToolbar().inflateMenu(R.menu.menu)
-        binding.mainMenu.toggleHideOnScroll(false)
-        binding.mainMenu.setupMenu()
-
-        binding.mainMenu.onSearchClosedListener = {
-            getAllFragments().forEach {
-                it?.onSearchClosed()
-            }
-        }
-
-        binding.mainMenu.onSearchTextChangedListener = { text ->
-            getCurrentFragment()?.onSearchQueryChanged(text)
-        }
-
-        binding.mainMenu.requireToolbar().setOnMenuItemClickListener { menuItem ->
-            when (menuItem.itemId) {
-                R.id.sort -> showSortingDialog(showCustomSorting = getCurrentFragment() is FavoritesFragment)
-                R.id.filter -> showFilterDialog()
-                R.id.dialpad -> launchDialpad()
-                R.id.more_apps_from_us -> launchMoreAppsFromUsIntent()
-                R.id.change_view_type -> changeViewType()
-                R.id.column_count -> changeColumnCount()
-                R.id.settings -> launchSettings()
-                R.id.about -> launchAbout()
-                else -> return@setOnMenuItemClickListener false
-            }
-            return@setOnMenuItemClickListener true
-        }
-    }
-
-    private fun changeViewType() {
-        ChangeViewTypeDialog(this) {
-            refreshMenuItems()
-            findViewById<FavoritesFragment>(R.id.favorites_fragment)?.updateFavouritesAdapter()
-        }
-    }
-
-    private fun changeColumnCount() {
-        val items = ArrayList<RadioItem>()
-        for (i in 1..CONTACTS_GRID_MAX_COLUMNS_COUNT) {
-            items.add(RadioItem(i, resources.getQuantityString(org.fossify.commons.R.plurals.column_counts, i, i)))
-        }
-
-        val currentColumnCount = config.contactsGridColumnCount
-        RadioGroupDialog(this, items, currentColumnCount) {
-            val newColumnCount = it as Int
-            if (currentColumnCount != newColumnCount) {
-                config.contactsGridColumnCount = newColumnCount
-                findViewById<FavoritesFragment>(R.id.favorites_fragment)?.columnCountChanged()
-            }
-        }
-    }
-
-    private fun updateMenuColors() {
-        binding.mainMenu.updateColors()
-    }
-
-    private fun storeStateVariables() {
+                        private fun storeStateVariables() {
         config.apply {
             storedShowContactThumbnails = showContactThumbnails
             storedShowPhoneNumbers = showPhoneNumbers
@@ -307,20 +351,7 @@ class MainActivity : SimpleActivity(), RefreshContactsListener {
         return fragments.getOrNull(binding.viewPager.currentItem)
     }
 
-    private fun setupTabColors() {
-        val activeView = binding.mainTabsHolder.getTabAt(binding.viewPager.currentItem)?.customView
-        updateBottomTabItemColors(activeView, true, getSelectedTabDrawableIds()[binding.viewPager.currentItem])
-
-        getInactiveTabIndexes(binding.viewPager.currentItem).forEach { index ->
-            val inactiveView = binding.mainTabsHolder.getTabAt(index)?.customView
-            updateBottomTabItemColors(inactiveView, false, getDeselectedTabDrawableIds()[index])
-        }
-
-        val bottomBarColor = getBottomNavigationBackgroundColor()
-        binding.mainTabsHolder.setBackgroundColor(bottomBarColor)
-    }
-
-    private fun updatePrivacyBadge(primaryColor: Int) {
+        private fun updatePrivacyBadge(primaryColor: Int) {
         binding.mainPrivacyBadge.apply {
             background.applyColorFilter(primaryColor)
             setImageDrawable(resources.getColoredDrawableWithColor(R.drawable.ic_lock_vector, primaryColor.getContrastColor()))
@@ -328,47 +359,7 @@ class MainActivity : SimpleActivity(), RefreshContactsListener {
         }
     }
 
-    private fun getInactiveTabIndexes(activeIndex: Int) = (0 until binding.mainTabsHolder.tabCount).filter { it != activeIndex }
-
-    private fun getSelectedTabDrawableIds(): ArrayList<Int> {
-        val showTabs = config.showTabs
-        val icons = ArrayList<Int>()
-
-        if (showTabs and TAB_CONTACTS != 0) {
-            icons.add(org.fossify.commons.R.drawable.ic_person_vector)
-        }
-
-        if (showTabs and TAB_FAVORITES != 0) {
-            icons.add(org.fossify.commons.R.drawable.ic_star_vector)
-        }
-
-        if (showTabs and TAB_GROUPS != 0) {
-            icons.add(org.fossify.commons.R.drawable.ic_people_vector)
-        }
-
-        return icons
-    }
-
-    private fun getDeselectedTabDrawableIds(): ArrayList<Int> {
-        val showTabs = config.showTabs
-        val icons = ArrayList<Int>()
-
-        if (showTabs and TAB_CONTACTS != 0) {
-            icons.add(org.fossify.commons.R.drawable.ic_person_outline_vector)
-        }
-
-        if (showTabs and TAB_FAVORITES != 0) {
-            icons.add(org.fossify.commons.R.drawable.ic_star_outline_vector)
-        }
-
-        if (showTabs and TAB_GROUPS != 0) {
-            icons.add(org.fossify.commons.R.drawable.ic_people_outline_vector)
-        }
-
-        return icons
-    }
-
-    private fun initFragments() {
+                private fun initFragments() {
         binding.viewPager.offscreenPageLimit = tabsList.size - 1
         binding.viewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             override fun onPageScrollStateChanged(state: Int) {}
@@ -376,17 +367,16 @@ class MainActivity : SimpleActivity(), RefreshContactsListener {
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
 
             override fun onPageSelected(position: Int) {
-                binding.mainTabsHolder.getTabAt(position)?.select()
+                bottomNav.select(currentNavIndex())
+                updateTitleForPage(position)
                 getAllFragments().forEach {
                     it?.finishActMode()
                 }
-                refreshMenuItems()
             }
         })
 
         binding.viewPager.onGlobalLayout {
             refreshContacts(ALL_TABS_MASK)
-            refreshMenuItems()
         }
 
         handleExternalIntent()
@@ -414,38 +404,7 @@ class MainActivity : SimpleActivity(), RefreshContactsListener {
         }
     }
 
-    private fun setupTabs() {
-        binding.mainTabsHolder.removeAllTabs()
-        tabsList.forEachIndexed { index, value ->
-            if (config.showTabs and value != 0) {
-                binding.mainTabsHolder.newTab().setCustomView(org.fossify.commons.R.layout.bottom_tablayout_item).apply tab@{
-                    customView?.let {
-                        BottomTablayoutItemBinding.bind(it)
-                    }?.apply {
-                        tabItemIcon.setImageDrawable(getTabIcon(index))
-                        tabItemLabel.text = getTabLabel(index)
-                        AutofitHelper.create(tabItemLabel)
-                        binding.mainTabsHolder.addTab(this@tab)
-                    }
-                }
-            }
-        }
-
-        binding.mainTabsHolder.onTabSelectionChanged(
-            tabUnselectedAction = {
-                updateBottomTabItemColors(it.customView, false, getDeselectedTabDrawableIds()[it.position])
-            },
-            tabSelectedAction = {
-                getCurrentFragment()?.onSearchQueryChanged(binding.mainMenu.getCurrentQuery())
-                binding.viewPager.currentItem = it.position
-                updateBottomTabItemColors(it.customView, true, getSelectedTabDrawableIds()[it.position])
-            }
-        )
-
-        binding.mainTabsHolder.beGoneIf(binding.mainTabsHolder.tabCount == 1)
-    }
-
-    private fun showSortingDialog(showCustomSorting: Boolean) {
+        private fun showSortingDialog(showCustomSorting: Boolean) {
         ChangeSortingDialog(this, showCustomSorting) {
             refreshContacts(TAB_CONTACTS or TAB_FAVORITES)
         }
@@ -541,9 +500,8 @@ class MainActivity : SimpleActivity(), RefreshContactsListener {
                 }
             }
 
-            if (binding.mainMenu.isSearchOpen) {
-                getCurrentFragment()?.onSearchQueryChanged(binding.mainMenu.getCurrentQuery())
-            }
+            // 联系人数变了，副标题跟着更新
+            runOnUiThread { updateSubtitle(filteredContacts.size) }
         }
     }
 
@@ -590,4 +548,13 @@ class MainActivity : SimpleActivity(), RefreshContactsListener {
             checkWhatsNew(this, BuildConfig.VERSION_CODE)
         }
     }
+
+    companion object {
+        // 底部导航的三项。用具名常量而不是裸数字 —— when(index) 里
+        // 写 0/1/2 的话，以后插入一项就要人肉核对每个分支。
+        private const val NAV_CONTACTS = 0
+        private const val NAV_FAVORITES = 1
+        private const val NAV_SETTINGS = 2
+    }
+
 }

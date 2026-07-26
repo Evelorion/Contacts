@@ -37,6 +37,7 @@ import org.fossify.commons.models.RadioItem
 import org.fossify.commons.models.contacts.Contact
 import org.fossify.commons.views.MyRecyclerView
 import org.fossify.contacts.R
+import org.fossify.contacts.ui.InitialAvatarDrawable
 import org.fossify.contacts.activities.SimpleActivity
 import org.fossify.contacts.activities.ViewContactActivity
 import org.fossify.contacts.dialogs.CreateNewGroupDialog
@@ -441,8 +442,14 @@ class ContactsAdapter(
             }
 
             if (showContactThumbnails) {
-                val placeholderImage =
-                    SimpleContactsHelper(context).getContactLetterIcon(fullName).toDrawable(resources)
+                // M3 首字母色块。替掉 commons 的 getContactLetterIcon —— 那个生成的是
+                // 灰底黑字的位图，和 M3 的彩色头像对不上，而且每次都要走一遍 Bitmap 分配。
+                // InitialAvatarDrawable 直接画，颜色按联系人 id 取模保证稳定。
+                val placeholderImage = InitialAvatarDrawable(
+                    context = context,
+                    initial = InitialAvatarDrawable.initialOf(fullName),
+                    key = contact.id,
+                )
                 if (contact.photoUri.isEmpty() && contact.photo == null) {
                     findViewById<ImageView>(org.fossify.commons.R.id.item_contact_image).setImageDrawable(placeholderImage)
                 } else {
@@ -460,6 +467,13 @@ class ContactsAdapter(
                         .apply(RequestOptions.circleCropTransform())
                         .into(findViewById(org.fossify.commons.R.id.item_contact_image))
                 }
+            }
+
+            // 收藏星标。commons 的布局里没有这个 id，是 M3 改版新加的，
+            // 所以走 app 自己的 R。findViewById 返回可空 —— 网格视图用的是
+            // 另一个布局，那边没有这个 View。
+            findViewById<ImageView>(R.id.item_contact_favorite)?.apply {
+                beVisibleIf(contact.starred == 1 && textToHighlight.isEmpty())
             }
 
             val dragIcon = findViewById<ImageView>(org.fossify.commons.R.id.drag_handle_icon)

@@ -43,6 +43,7 @@ import org.fossify.commons.helpers.letterBackgroundColors
 import org.fossify.commons.models.RadioItem
 import org.fossify.commons.models.contacts.Contact
 import org.fossify.contacts.R
+import org.fossify.contacts.ui.InitialAvatarDrawable
 import org.fossify.contacts.extensions.shareContacts
 
 abstract class ContactActivity : SimpleActivity() {
@@ -82,9 +83,25 @@ abstract class ContactActivity : SimpleActivity() {
 
     abstract fun systemRingtoneSelected(uri: Uri?)
 
+    /**
+     * 没有照片时的头像占位。
+     *
+     * 换成 M3 的方圆形首字母块，替掉 commons 的 getBigLetterPlaceholder ——
+     * 后者生成的是灰底的位图，和详情页的 M3 配色对不上。
+     *
+     * 颜色用**联系人 id** 取模，和列表页里同一个人的头像颜色一致。
+     * 用姓名取模的话，改个名字头像颜色就会跳一下。
+     */
     fun showPhotoPlaceholder(photoView: ImageView) {
-        val placeholder = BitmapDrawable(resources, getBigLetterPlaceholder(contact?.getNameToDisplay() ?: "A"))
-        photoView.setImageDrawable(placeholder)
+        val name = contact?.getNameToDisplay().orEmpty()
+        photoView.setImageDrawable(
+            InitialAvatarDrawable(
+                context = this,
+                initial = InitialAvatarDrawable.initialOf(name),
+                key = contact?.id ?: name,
+                shape = InitialAvatarDrawable.Shape.SQUIRCLE,
+            )
+        )
         currentContactPhotoPath = ""
         contact?.photo = null
     }

@@ -1,21 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  编辑页的一行 · M3 outlined 文本框
+
+  设计稿：56dp 最小高度、14dp 圆角、1dp 描边（聚焦时换主色并加粗到 2dp）。
+  描边的状态切换在 m3_bg_field.xml 里。
+
+  这里没做"浮动标签"（聚焦时标签缩到边框上那种）——
+  Material 的 TextInputLayout 能做，但它会自己接管背景和内边距，
+  和这一套自定义 drawable 打架。类型标签放右侧反而更省纵向空间。
+-->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/contact_website_holder"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingEnd="@dimen/activity_margin">
+    android:layout_marginTop="@dimen/m3_field_gap"
+    android:background="@drawable/m3_bg_field"
+    android:minHeight="@dimen/m3_field_min_height"
+    android:paddingStart="16dp"
+    android:paddingTop="6dp"
+    android:paddingEnd="8dp"
+    android:paddingBottom="6dp">
+
+    <!-- 没有星标时给类型标签一个靠右的锚点 -->
+    <View
+        android:id="@+id/contact_edit_end_anchor"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_alignParentEnd="true" />
 
     <org.fossify.commons.views.MyEditText
         android:id="@+id/contact_website"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:hint="@string/website"
-        android:inputType="textWebEditText"
-        android:lines="1"
-        android:maxLines="1"
-        android:singleLine="true"
-        android:textCursorDrawable="@null"
-        android:textSize="@dimen/bigger_text_size" />
+        android:layout_toStartOf="@+id/contact_edit_end_anchor"
+        android:background="@null"
+        android:inputType="textUri"
+        android:minHeight="44dp"
+        android:textAppearance="@style/TextAppearance.Contacts.BodyLarge"
+        android:textColorHint="?attr/colorOnSurfaceVariant" />
 
 </RelativeLayout>

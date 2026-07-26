@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 详情页和编辑页的大头像，设计稿是 34% 圆角的"方圆形"。
+     104dp 的 34% ≈ 35dp。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="35dp" />
+    <solid android:color="?attr/colorPrimary" />
+</shape>

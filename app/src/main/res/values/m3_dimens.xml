@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  M3 尺寸。设计稿是 412×892 的 mockup，里面的 px 按 1:1 当 dp 用
+  （412dp 正好是主流手机的宽度）。
+
+  只放**设计稿里明确出现过**的值。没出现过的不要在这里编，
+  编出来的值会和设计稿悄悄分叉。
+-->
+<resources>
+
+    <!-- 主页顶部 -->
+    <dimen name="m3_header_padding_horizontal">16dp</dimen>
+    <dimen name="m3_header_padding_top">8dp</dimen>
+    <dimen name="m3_profile_avatar_size">40dp</dimen>
+
+    <!-- 停靠搜索栏：高 56，圆角 28（= 高度一半，M3 的 full shape） -->
+    <dimen name="m3_search_bar_height">56dp</dimen>
+    <dimen name="m3_search_bar_radius">28dp</dimen>
+    <dimen name="m3_search_bar_margin_top">14dp</dimen>
+    <dimen name="m3_search_bar_padding_horizontal">20dp</dimen>
+    <dimen name="m3_search_bar_icon_gap">14dp</dimen>
+
+    <!-- 筛选 chip：高 36，圆角 18 -->
+    <dimen name="m3_chip_height">36dp</dimen>
+    <dimen name="m3_chip_radius">18dp</dimen>
+    <dimen name="m3_chip_padding_horizontal">16dp</dimen>
+    <dimen name="m3_chip_gap">8dp</dimen>
+
+    <!-- 列表行。1a 规范型是宽松密度：头像 44，左右 16 上下 10。
+         设置里的「紧凑密度」开关会切到 m3_row_*_dense。 -->
+    <dimen name="m3_avatar_size">44dp</dimen>
+    <dimen name="m3_avatar_size_dense">36dp</dimen>
+    <dimen name="m3_avatar_text_size">17sp</dimen>
+    <dimen name="m3_avatar_text_size_dense">15sp</dimen>
+    <dimen name="m3_row_padding_horizontal">16dp</dimen>
+    <dimen name="m3_row_padding_vertical">10dp</dimen>
+    <dimen name="m3_row_padding_horizontal_dense">14dp</dimen>
+    <dimen name="m3_row_padding_vertical_dense">6dp</dimen>
+    <dimen name="m3_row_gap">16dp</dimen>
+    <dimen name="m3_row_radius">20dp</dimen>
+
+    <!-- 字母分组头 -->
+    <dimen name="m3_index_letter_padding_top">14dp</dimen>
+    <dimen name="m3_index_letter_padding_bottom">6dp</dimen>
+
+    <!-- 扩展 FAB：高 60，圆角 20，左右内边距 22，距右下 18 -->
+    <dimen name="m3_fab_height">60dp</dimen>
+    <dimen name="m3_fab_radius">20dp</dimen>
+    <dimen name="m3_fab_padding_horizontal">22dp</dimen>
+    <dimen name="m3_fab_margin">18dp</dimen>
+    <dimen name="m3_fab_icon_size">26dp</dimen>
+    <dimen name="m3_fab_icon_gap">12dp</dimen>
+
+    <!-- 底部导航：高 80，规范型不做圆角也不做阴影（靠容器色区分层次） -->
+    <dimen name="m3_nav_height">80dp</dimen>
+    <dimen name="m3_nav_pill_width">64dp</dimen>
+    <dimen name="m3_nav_pill_height">32dp</dimen>
+    <dimen name="m3_nav_pill_radius">16dp</dimen>
+    <dimen name="m3_nav_icon_size">24dp</dimen>
+
+    <!-- 列表底部留白，让最后一行不被 FAB 和导航挡住 -->
+    <dimen name="m3_list_bottom_inset">96dp</dimen>
+
+    <!-- 详情页 -->
+    <dimen name="m3_detail_avatar_size">104dp</dimen>
+    <dimen name="m3_detail_avatar_text_size">42sp</dimen>
+    <dimen name="m3_detail_action_width">64dp</dimen>
+    <dimen name="m3_detail_action_height">56dp</dimen>
+    <dimen name="m3_detail_action_radius">20dp</dimen>
+    <dimen name="m3_detail_action_gap">14dp</dimen>
+
+    <!-- 卡片。详情页信息卡 26，设置项卡 26，收藏格子 26 -->
+    <dimen name="m3_card_radius">26dp</dimen>
+    <dimen name="m3_card_margin_horizontal">16dp</dimen>
+    <dimen name="m3_card_row_padding_horizontal">20dp</dimen>
+    <dimen name="m3_card_row_padding_vertical">16dp</dimen>
+    <dimen name="m3_card_row_gap">18dp</dimen>
+
+    <!-- 编辑页的 outlined 输入框 -->
+    <dimen name="m3_field_min_height">56dp</dimen>
+    <dimen name="m3_field_radius">14dp</dimen>
+    <dimen name="m3_field_stroke">2dp</dimen>
+    <dimen name="m3_field_gap">22dp</dimen>
+    <dimen name="m3_edit_avatar_size">96dp</dimen>
+
+    <!-- 通用圆形按钮触摸区（返回、更多、收藏），M3 最小 48 -->
+    <dimen name="m3_icon_button_size">48dp</dimen>
+    <dimen name="m3_icon_size">24dp</dimen>
+
+    <!-- 开关。M3 规格：轨道 52×32，选中时滑块 24，未选中 16 -->
+    <dimen name="m3_switch_track_width">52dp</dimen>
+    <dimen name="m3_switch_track_height">32dp</dimen>
+    <dimen name="m3_switch_thumb_on">24dp</dimen>
+    <dimen name="m3_switch_thumb_off">16dp</dimen>
+
+</resources>

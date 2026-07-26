@@ -1,67 +1,262 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  主页 · 设计稿 1a 规范型
+  Large top app bar + 停靠搜索栏 + 三段筛选 chip + 底部导航 + 扩展 FAB
+
+  ── 为什么不用 MaterialToolbar / BottomNavigationView ──────────────
+
+  设计稿的顶栏是「大标题 + 副标题 + 右上圆形头像」，底栏是「胶囊高亮 + 图标 + 文字」。
+  这两个都不是 Material 组件的默认形态，用组件再改样式反而要跟它的内部布局对抗
+  （BottomNavigationView 的 item 布局是私有的，胶囊尺寸改不到设计稿的 64×32）。
+  手写反而更短、更好控。
+
+  代价是失去了组件自带的无障碍语义，所以下面每个可点区域都显式写了
+  contentDescription 和 minHeight。
+
+  ── 层级 ────────────────────────────────────────────────────────
+  CoordinatorLayout
+   └ ConstraintLayout
+      ├ 顶部区（标题 + 头像 + 搜索栏 + chip）  固定不滚
+      ├ ViewPager                             占满中间
+      ├ 扩展 FAB                               浮在右下
+      └ 底部导航                               固定底部
+-->
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_coordinator"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <org.fossify.commons.views.MySearchMenu
-        android:id="@+id/main_menu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/main_holder"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="match_parent">
+
+        <!-- ══════════════════ 顶部：大标题 ══════════════════ -->
+
+        <TextView
+            android:id="@+id/main_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/m3_header_padding_horizontal"
+            android:layout_marginTop="@dimen/m3_header_padding_top"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="@string/contacts_tab"
+            android:textAppearance="@style/TextAppearance.Contacts.HeadlineLarge"
+            app:layout_constraintEnd_toStartOf="@+id/main_profile_avatar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- 副标题显示「N 位 · 已同步」。同步状态由 SyncEngine 回填，
+             未配置同步时只显示条数。 -->
+        <TextView
+            android:id="@+id/main_subtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/m3_header_padding_horizontal"
+            android:layout_marginTop="2dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.Contacts.BodySmall"
+            app:layout_constraintEnd_toStartOf="@+id/main_profile_avatar"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/main_title"
+            tools:text="1,208 位 · 已同步" />
+
+        <!-- 右上角的「我」，进设置。用 tertiaryContainer 让它和主色区分开，
+             避免用户误以为是另一个主操作。 -->
+        <TextView
+            android:id="@+id/main_profile_avatar"
+            android:layout_width="@dimen/m3_profile_avatar_size"
+            android:layout_height="@dimen/m3_profile_avatar_size"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="@dimen/m3_header_padding_horizontal"
+            android:background="@drawable/m3_bg_circle_ripple"
+            android:contentDescription="@string/settings"
+            android:gravity="center"
+            android:text="@string/m3_profile_initial"
+            android:textColor="?attr/colorOnTertiaryContainer"
+            android:textSize="15sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- 头像的圆形底色。放在单独一层是因为 ripple 的 mask 会盖掉 solid，
+             两者叠在同一个 background 里时按下会闪一下底色。 -->
+        <View
+            android:id="@+id/main_profile_avatar_bg"
+            android:layout_width="@dimen/m3_profile_avatar_size"
+            android:layout_height="@dimen/m3_profile_avatar_size"
+            android:background="@drawable/m3_bg_avatar"
+            android:backgroundTint="?attr/colorTertiaryContainer"
+            android:elevation="-1dp"
+            app:layout_constraintBottom_toBottomOf="@+id/main_profile_avatar"
+            app:layout_constraintEnd_toEndOf="@+id/main_profile_avatar"
+            app:layout_constraintStart_toStartOf="@+id/main_profile_avatar"
+            app:layout_constraintTop_toTopOf="@+id/main_profile_avatar" />
+
+        <!-- ══════════════════ 停靠搜索栏 ══════════════════
+             点击进全屏搜索页，本身不接受输入。这是 M3 的 docked search bar 模式：
+             列表页放一个"看起来能输入"的条，真正的输入在专门的搜索页里做。
+             好处是列表页不用处理输入法弹起时的布局变化。 -->
+
+        <LinearLayout
+            android:id="@+id/main_search_bar"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/m3_search_bar_height"
+            android:layout_marginStart="@dimen/m3_header_padding_horizontal"
+            android:layout_marginTop="@dimen/m3_search_bar_margin_top"
+            android:layout_marginEnd="@dimen/m3_header_padding_horizontal"
+            android:background="@drawable/m3_bg_search_bar"
+            android:clickable="true"
+            android:contentDescription="@string/search"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/m3_search_bar_padding_horizontal"
+            android:paddingEnd="@dimen/m3_search_bar_padding_horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/main_subtitle">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_m3_search" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/m3_search_bar_icon_gap"
+                android:layout_weight="1"
+                android:text="@string/m3_search_hint"
+                android:textAppearance="@style/TextAppearance.Contacts.BodyLarge"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+        </LinearLayout>
+
+        <!-- ══════════════════ 筛选 chip ══════════════════
+             全部 / 常用 / 群组。和底部导航是两个维度：
+             chip 换的是当前列表筛什么，导航换的是在哪个页面。 -->
+
+        <HorizontalScrollView
+            android:id="@+id/main_filter_scroll"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:paddingStart="@dimen/m3_header_padding_horizontal"
+            android:paddingEnd="@dimen/m3_header_padding_horizontal"
+            android:clipToPadding="false"
+            android:scrollbars="none"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/main_search_bar">
+
+            <LinearLayout
+                android:id="@+id/main_filter_chips"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
+        </HorizontalScrollView>
+
+        <!-- ══════════════════ 列表 ══════════════════ -->
 
         <org.fossify.commons.views.MyViewPager
             android:id="@+id/view_pager"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_marginTop="4dp"
             android:clipToPadding="false"
-            app:layout_constraintBottom_toTopOf="@+id/main_tabs_holder"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintBottom_toTopOf="@+id/main_bottom_nav"
+            app:layout_constraintTop_toBottomOf="@+id/main_filter_scroll" />
 
-        <ImageView
-            android:id="@+id/main_dialpad_button"
-            android:layout_width="@dimen/dialpad_button_size"
-            android:layout_height="@dimen/dialpad_button_size"
-            android:layout_marginBottom="@dimen/activity_margin"
-            android:background="@drawable/circle_background"
-            android:contentDescription="@string/dialpad"
-            android:elevation="@dimen/medium_margin"
-            android:padding="@dimen/activity_margin"
-            android:src="@drawable/ic_dialpad_vector"
-            app:layout_constraintBottom_toTopOf="@+id/main_tabs_holder"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+        <!-- ══════════════════ 扩展 FAB ══════════════════
+             设计稿是 primaryContainer 底 + onPrimaryContainer 前景，
+             不是实心主色。规范型的 FAB 带文字（「新建」），
+             这是 M3 extended FAB —— 主操作要说清楚是什么操作。 -->
 
+        <LinearLayout
+            android:id="@+id/main_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/m3_fab_height"
+            android:layout_marginEnd="@dimen/m3_fab_margin"
+            android:layout_marginBottom="@dimen/m3_fab_margin"
+            android:background="@drawable/m3_bg_fab"
+            android:clickable="true"
+            android:contentDescription="@string/create_new_contact"
+            android:elevation="6dp"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/m3_fab_padding_horizontal"
+            android:paddingEnd="@dimen/m3_fab_padding_horizontal"
+            app:layout_constraintBottom_toTopOf="@+id/main_bottom_nav"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <ImageView
+                android:layout_width="@dimen/m3_fab_icon_size"
+                android:layout_height="@dimen/m3_fab_icon_size"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_m3_person_add"
+                app:tint="?attr/colorOnPrimaryContainer" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/m3_fab_icon_gap"
+                android:text="@string/m3_fab_new"
+                android:textColor="?attr/colorOnPrimaryContainer"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+        <!-- 隐私徽标：本地库已加密时亮起。位置避开 FAB。 -->
         <ImageView
             android:id="@+id/main_privacy_badge"
             android:layout_width="@dimen/privacy_badge_size"
             android:layout_height="@dimen/privacy_badge_size"
-            android:layout_marginEnd="@dimen/privacy_badge_margin_end"
-            android:layout_marginBottom="@dimen/privacy_badge_margin_bottom"
+            android:layout_marginStart="@dimen/m3_fab_margin"
+            android:layout_marginBottom="@dimen/m3_fab_margin"
             android:background="@drawable/privacy_badge_background"
             android:contentDescription="@string/privacy_badge_content_description"
             android:elevation="@dimen/privacy_badge_elevation"
             android:padding="@dimen/privacy_badge_padding"
-            android:src="@drawable/ic_lock_vector"
+            android:src="@drawable/ic_m3_lock"
             android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/main_tabs_holder"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintBottom_toTopOf="@+id/main_bottom_nav"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:visibility="visible" />
 
-        <com.google.android.material.tabs.TabLayout
-            android:id="@+id/main_tabs_holder"
+        <!-- 拨号盘按钮。原来在列表正下方居中，会和扩展 FAB 抢位置，
+             挪到左侧和隐私徽标同一列的上方。 -->
+        <ImageView
+            android:id="@+id/main_dialpad_button"
+            android:layout_width="@dimen/dialpad_button_size"
+            android:layout_height="@dimen/dialpad_button_size"
+            android:layout_marginStart="@dimen/m3_fab_margin"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/circle_background"
+            android:contentDescription="@string/dialpad"
+            android:elevation="4dp"
+            android:padding="@dimen/activity_margin"
+            android:src="@drawable/ic_dialpad_vector"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/main_privacy_badge"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- ══════════════════ 底部导航 ══════════════════
+             规范型：高 80，无圆角无阴影，用 surfaceContainerLow 和内容区分层。
+             三项由代码填充（M3BottomNav.kt），不写死在 XML 里 ——
+             项数可能随功能变化，写死会导致改一次要动两处。 -->
+
+        <LinearLayout
+            android:id="@+id/main_bottom_nav"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:elevation="@dimen/main_tabs_elevation"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:tabIndicator="@null"
-            app:tabMinWidth="150dp"
-            app:tabRippleColor="@null" />
+            android:layout_height="@dimen/m3_nav_height"
+            android:background="?attr/colorSurfaceContainerLow"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 详情页顶部的快捷动作（拨号 / 短信 / 视频 / 邮件）。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/action_tile"
+        android:layout_width="@dimen/m3_detail_action_width"
+        android:layout_height="@dimen/m3_detail_action_height"
+        android:background="@drawable/m3_bg_action"
+        android:clickable="true"
+        android:focusable="true">
+
+        <ImageView
+            android:id="@+id/action_icon"
+            android:layout_width="@dimen/m3_icon_size"
+            android:layout_height="@dimen/m3_icon_size"
+            android:layout_gravity="center"
+            android:importantForAccessibility="no"
+            app:tint="?attr/colorOnSecondaryContainer"
+            xmlns:app="http://schemas.android.com/apk/res-auto" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/action_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textAppearance="@style/TextAppearance.Contacts.LabelSmall" />
+
+</LinearLayout>

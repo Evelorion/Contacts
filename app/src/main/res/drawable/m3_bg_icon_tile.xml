@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 群组行左侧、编辑页相机角标那种 14dp 圆角的小色块。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <corners android:radius="14dp" />
+    <solid android:color="?attr/colorSecondaryContainer" />
+</shape>

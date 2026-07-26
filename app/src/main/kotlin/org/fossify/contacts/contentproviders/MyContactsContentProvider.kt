@@ -23,8 +23,13 @@ import org.fossify.contacts.sync.model.ContactPayload
  * 其它任何调用方拿到的都是空 Cursor（不是异常，避免对方闪退暴露存在性）。
  *
  * 两条 URI：
- *   content://org.fossify.commons.contactsprovider           全量列表，电话 App 启动时拉一次
- *   content://org.fossify.commons.contactsprovider/number/*  按号码盲索引查单个，来电时用
+ *   content://org.fossify.commons.contactsprovider              全量列表，电话 App 启动时拉一次
+ *   content://org.fossify.commons.contactsprovider/number/<号码>  按号码盲索引查单个，来电时用
+ *
+ * 注：上面第二条的实际 URI 模式末尾是通配符。这里写成 <号码> 而不是那个符号，
+ * 因为 **Kotlin 的块注释是可以嵌套的** —— 在 KDoc 里写出「斜杠星号」会当场
+ * 开一层新注释，把后面整个文件吞掉，报错是文件末尾的 "Unclosed comment"，
+ * 离真正的出错位置几百行远。
  *
  * 加号码查询这条路是因为：来电时电话 App 只需要知道「这个号码是谁」，
  * 让它把整个通讯录拉过去再自己匹配，既慢又等于把全部联系人复制了一份到另一个进程。

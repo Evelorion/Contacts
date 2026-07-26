@@ -106,6 +106,15 @@
             </intent-filter>
         </activity>
 
+        <!-- 全屏搜索页。M3 的 docked search bar 模式：
+             主页那条搜索栏不接受输入，点了进这一页。 -->
+        <activity
+            android:name=".activities.SearchActivity"
+            android:configChanges="orientation"
+            android:exported="false"
+            android:parentActivityName=".activities.MainActivity"
+            android:windowSoftInputMode="adjustResize" />
+
         <activity
             android:name=".sync.ui.SyncSetupActivity"
             android:configChanges="orientation"

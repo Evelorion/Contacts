@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  群组行 · M3
+
+  设计稿：42dp 圆角方块图标（tertiaryContainer 底）+ 名称 + 人数 + 右箭头。
+  整行圆角 ripple，不再是一张有底色的卡片 —— 卡片套卡片在 M3 里是
+  层级噪音，同一层只该有一种容器。
+-->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/group_frame"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/tiny_margin"
-    android:layout_marginBottom="@dimen/tiny_margin"
-    android:background="@drawable/contact_card_background_ripple"
+    android:background="@drawable/m3_bg_row"
     android:clickable="true"
     android:focusable="true">
 
@@ -14,34 +20,47 @@
         android:id="@+id/group_holder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="@dimen/min_row_height"
-        android:paddingStart="@dimen/activity_margin"
-        android:paddingTop="@dimen/medium_margin"
-        android:paddingEnd="@dimen/activity_margin"
-        android:paddingBottom="@dimen/medium_margin">
+        android:minHeight="68dp"
+        android:paddingStart="16dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="12dp">
 
         <ImageView
             android:id="@+id/group_tmb"
-            android:layout_width="@dimen/normal_icon_size"
-            android:layout_height="@dimen/normal_icon_size"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
             android:layout_centerVertical="true"
-            android:layout_marginStart="@dimen/small_margin"
-            android:padding="@dimen/tiny_margin"
-            android:src="@drawable/ic_people_vector" />
+            android:background="@drawable/m3_bg_icon_tile"
+            android:backgroundTint="?attr/colorTertiaryContainer"
+            android:contentDescription="@null"
+            android:padding="10dp"
+            android:src="@drawable/ic_m3_group"
+            app:tint="?attr/colorOnTertiaryContainer" />
+
+        <ImageView
+            android:id="@+id/group_chevron"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_m3_chevron_right"
+            app:tint="?attr/colorOnSurfaceVariant" />
 
         <TextView
             android:id="@+id/group_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            android:layout_toStartOf="@+id/group_chevron"
             android:layout_toEndOf="@+id/group_tmb"
             android:ellipsize="end"
-            android:gravity="center_vertical"
             android:maxLines="1"
-            android:paddingStart="@dimen/medium_margin"
-            android:paddingEnd="@dimen/activity_margin"
-            android:textSize="@dimen/big_text_size"
-            tools:text="Family" />
+            android:textAppearance="@style/TextAppearance.Contacts.BodyLarge"
+            tools:text="家人" />
 
     </RelativeLayout>
 </FrameLayout>

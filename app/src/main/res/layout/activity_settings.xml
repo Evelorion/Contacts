@@ -35,6 +35,204 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <!-- ══════════════════ M3 外观 ══════════════════
+                 设计稿的设置页第一屏：账号卡 + 外观 + 显示与排序。
+                 下面原有的 Fossify 设置条目保持不变（它们各自绑着
+                 SettingsActivity 里的逻辑），只是排在这些新分区后面。 -->
+
+            <!-- 账号卡。显示当前同步账号；没配置同步时 Activity 会隐藏它。 -->
+            <LinearLayout
+                android:id="@+id/settings_m3_account_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/m3_card_margin_horizontal"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="@dimen/m3_card_margin_horizontal"
+                android:background="@drawable/m3_bg_card"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="18dp"
+                android:paddingTop="16dp"
+                android:paddingEnd="18dp"
+                android:paddingBottom="16dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/settings_m3_account_avatar"
+                    android:layout_width="52dp"
+                    android:layout_height="52dp"
+                    android:background="@drawable/m3_bg_avatar"
+                    android:backgroundTint="?attr/colorTertiaryContainer"
+                    android:gravity="center"
+                    android:text="@string/m3_profile_initial"
+                    android:textColor="?attr/colorOnTertiaryContainer"
+                    android:textSize="20sp" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/settings_m3_account_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="17sp" />
+
+                    <TextView
+                        android:id="@+id/settings_m3_account_detail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:textAppearance="@style/TextAppearance.Contacts.BodySmall" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="22dp"
+                android:paddingTop="22dp"
+                android:paddingEnd="22dp"
+                android:paddingBottom="8dp"
+                android:text="@string/m3_settings_appearance"
+                android:textAppearance="@style/TextAppearance.Contacts.SectionHeader" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/m3_card_margin_horizontal"
+                android:layout_marginEnd="@dimen/m3_card_margin_horizontal"
+                android:background="@drawable/m3_bg_card"
+                android:orientation="vertical"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp">
+
+                <!-- 配色：三个 chip，点了立刻 recreate 生效 -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="18dp"
+                    android:paddingTop="14dp"
+                    android:paddingEnd="18dp"
+                    android:text="@string/m3_settings_palette"
+                    android:textAppearance="@style/TextAppearance.Contacts.BodyLarge" />
+
+                <LinearLayout
+                    android:id="@+id/settings_m3_palette_chips"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingStart="18dp"
+                    android:paddingTop="10dp"
+                    android:paddingEnd="18dp"
+                    android:paddingBottom="14dp" />
+
+                <!-- 深色主题：三选一（跟随系统 / 关 / 开）。
+                     不做成开关是因为「跟随系统」表达不了 —— 两态开关会
+                     强迫用户在两个都不对的选项里选一个。 -->
+                <RelativeLayout
+                    android:id="@+id/settings_m3_dark_mode_holder"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/m3_bg_card_row"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:minHeight="64dp"
+                    android:paddingStart="18dp"
+                    android:paddingTop="12dp"
+                    android:paddingEnd="18dp"
+                    android:paddingBottom="12dp">
+
+                    <TextView
+                        android:id="@+id/settings_m3_dark_mode_label"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/m3_settings_dark_mode"
+                        android:textAppearance="@style/TextAppearance.Contacts.BodyLarge" />
+
+                    <TextView
+                        android:id="@+id/settings_m3_dark_mode_value"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/settings_m3_dark_mode_label"
+                        android:layout_marginTop="2dp"
+                        android:textAppearance="@style/TextAppearance.Contacts.BodySmall" />
+                </RelativeLayout>
+            </LinearLayout>
+
+            <!-- ══════════════ 显示与排序 ══════════════
+                 这几项原来在主页的溢出菜单里。新的主页顶栏按设计稿只有
+                 「我」一个入口，没有溢出菜单，所以搬到这里 ——
+                 它们本来就是显示偏好，放设置页在语义上更对。 -->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="22dp"
+                android:paddingTop="22dp"
+                android:paddingEnd="22dp"
+                android:paddingBottom="8dp"
+                android:text="@string/m3_settings_display"
+                android:textAppearance="@style/TextAppearance.Contacts.SectionHeader" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/m3_card_margin_horizontal"
+                android:layout_marginEnd="@dimen/m3_card_margin_horizontal"
+                android:background="@drawable/m3_bg_card"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/settings_m3_sort_holder"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/m3_bg_card_row"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="56dp"
+                    android:paddingStart="18dp"
+                    android:paddingEnd="18dp"
+                    android:text="@string/sort_by"
+                    android:textAppearance="@style/TextAppearance.Contacts.BodyLarge" />
+
+                <TextView
+                    android:id="@+id/settings_m3_filter_holder"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/m3_bg_card_row"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="56dp"
+                    android:paddingStart="18dp"
+                    android:paddingEnd="18dp"
+                    android:text="@string/filter"
+                    android:textAppearance="@style/TextAppearance.Contacts.BodyLarge" />
+
+                <TextView
+                    android:id="@+id/settings_m3_view_type_holder"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/m3_bg_card_row"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="56dp"
+                    android:paddingStart="18dp"
+                    android:paddingEnd="18dp"
+                    android:text="@string/change_view_type"
+                    android:textAppearance="@style/TextAppearance.Contacts.BodyLarge" />
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/settings_color_customization_section_label"
                 style="@style/SettingsSectionLabelStyle"

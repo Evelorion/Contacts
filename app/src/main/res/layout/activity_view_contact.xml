@@ -1,443 +1,489 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  联系人详情 · M3 重构
+
+  ── 和旧版的区别 ────────────────────────────────────────────────
+
+  旧版：顶部一张通栏大图（top_contact_image_height），下面是
+        「图标 + 内容」两列的 RelativeLayout，靠 layout_alignTop 互相咬合。
+  新版：居中的 104dp 方圆头像 + 姓名 + 职位，下面是四组 M3 卡片。
+
+  改成 LinearLayout 竖排是关键 —— 旧版每个 section 的图标都要
+  layout_alignTop 到对应的 holder，一个 section 隐藏了相邻的就会错位，
+  这是这个文件里历史上最容易出 bug 的地方。竖排之后 gone 就是真的消失。
+
+  ── 约束：34 个 id 一个都不能改 ─────────────────────────────────
+
+  ViewContactActivity 里按 id 找 View 的地方有几十处。这次只重排结构、
+  换样式，**所有 id 原样保留**，所以 Activity 一行都不用动。
+  contact_photo_bottom_shadow、contact_photo_top_shadow 这类为通栏大图
+  服务的 View 现在用不上了，但 Activity 仍然会 findViewById，
+  删掉会 NPE —— 所以保留并设成 gone。
+-->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/contact_wrapper"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface">
 
     <ScrollView
         android:id="@+id/contact_scrollview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
         android:scrollbars="none"
         android:visibility="gone">
 
-        <RelativeLayout
+        <LinearLayout
             android:id="@+id/contact_holder"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="28dp">
+
+            <!-- ══════════════ 顶部操作行 ══════════════
+                 返回在 toolbar 里，这一行只放收藏。
+                 「更多」由 toolbar 的溢出菜单提供，不重复放一个。 -->
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/contact_toggle_favorite"
+                    android:layout_width="@dimen/m3_icon_button_size"
+                    android:layout_height="@dimen/m3_icon_button_size"
+                    android:layout_gravity="end"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/m3_bg_circle_ripple"
+                    android:contentDescription="@string/toggle_favorite"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_m3_star"
+                    android:visibility="gone"
+                    app:tint="?attr/colorOnSurfaceVariant" />
+            </FrameLayout>
+
+            <!-- ══════════════ 头像 + 姓名 ══════════════
+                 104dp 方圆形（设计稿写的是 34% 圆角）。
+                 没有照片时 Activity 会塞进 InitialAvatarDrawable。 -->
 
             <ImageView
                 android:id="@+id/contact_photo"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/top_contact_image_height"
-                android:layout_marginBottom="@dimen/normal_margin"
+                android:layout_width="@dimen/m3_detail_avatar_size"
+                android:layout_height="@dimen/m3_detail_avatar_size"
+                android:layout_gravity="center_horizontal"
                 android:contentDescription="@string/change_photo"
                 android:scaleType="centerCrop"
-                tools:src="@drawable/ic_person_vector" />
+                tools:src="@drawable/ic_m3_person" />
 
+            <!-- 旧版通栏大图的两条渐变阴影。现在用不上，但 Activity 仍会
+                 findViewById 并设置可见性，删掉会 NPE。 -->
             <ImageView
                 android:id="@+id/contact_photo_bottom_shadow"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/top_shadow_height"
-                android:layout_alignBottom="@+id/contact_photo"
-                android:background="@drawable/gradient_background"
-                android:contentDescription="@null" />
-
-            <ImageView
-                android:id="@+id/contact_toggle_favorite"
-                android:layout_width="@dimen/contact_actions_size"
-                android:layout_height="@dimen/contact_actions_size"
-                android:layout_alignStart="@+id/contact_photo"
-                android:layout_alignBottom="@id/contact_photo"
-                android:layout_margin="@dimen/medium_margin"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/toggle_favorite"
-                android:padding="@dimen/tiny_margin"
-                android:src="@drawable/ic_star_outline_vector"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:contentDescription="@null"
                 android:visibility="gone" />
 
-            <LinearLayout
-                android:id="@+id/contact_actions_holder"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignEnd="@+id/contact_photo"
-                android:layout_alignBottom="@id/contact_photo"
-                android:gravity="bottom|end"
-                android:paddingEnd="@dimen/medium_margin"
-                android:paddingBottom="@dimen/medium_margin">
+            <ImageView
+                android:id="@+id/contact_photo_top_shadow"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:contentDescription="@null"
+                android:visibility="gone" />
 
-                <ImageView
-                    android:id="@+id/contact_send_email"
-                    android:layout_width="@dimen/contact_actions_size"
-                    android:layout_height="@dimen/contact_actions_size"
-                    android:adjustViewBounds="true"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/send_email"
-                    android:paddingStart="@dimen/small_margin"
-                    android:paddingEnd="@dimen/small_margin"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/ic_mail_vector" />
-
-                <ImageView
-                    android:id="@+id/contact_start_call"
-                    android:layout_width="@dimen/contact_actions_size"
-                    android:layout_height="@dimen/contact_actions_size"
-                    android:layout_marginStart="@dimen/normal_margin"
-                    android:adjustViewBounds="true"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/call_contact"
-                    android:paddingStart="@dimen/small_margin"
-                    android:paddingEnd="@dimen/small_margin"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/ic_phone_vector" />
-
-                <ImageView
-                    android:id="@+id/contact_send_sms"
-                    android:layout_width="@dimen/contact_actions_size"
-                    android:layout_height="@dimen/contact_actions_size"
-                    android:layout_marginStart="@dimen/normal_margin"
-                    android:adjustViewBounds="true"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/send_sms"
-                    android:paddingStart="@dimen/small_margin"
-                    android:paddingEnd="@dimen/small_margin"
-                    android:scaleType="fitCenter"
-                    android:src="@drawable/ic_sms_vector" />
-
-            </LinearLayout>
-
+            <!-- 姓名前面那个小人图标在新设计里不需要（姓名已经居中放大了），
+                 但 Activity 会给它上色，保留成 gone。 -->
             <ImageView
                 android:id="@+id/contact_name_image"
-                android:layout_width="@dimen/contact_icons_size"
-                android:layout_height="@dimen/contact_icons_size"
-                android:layout_below="@+id/contact_photo"
-                android:layout_marginStart="@dimen/normal_margin"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
                 android:contentDescription="@null"
-                android:paddingTop="@dimen/medium_margin"
-                android:paddingEnd="@dimen/small_margin"
-                android:paddingBottom="@dimen/small_margin"
-                android:src="@drawable/ic_person_vector" />
+                android:visibility="gone" />
 
             <org.fossify.commons.views.MyTextView
                 android:id="@+id/contact_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/contact_photo"
-                android:layout_centerVertical="true"
-                android:layout_toEndOf="@+id/contact_name_image"
+                android:layout_marginStart="24dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="24dp"
                 android:background="?attr/selectableItemBackground"
+                android:gravity="center"
                 android:maxLines="2"
-                android:paddingStart="@dimen/small_margin"
-                android:paddingTop="@dimen/normal_margin"
-                android:paddingEnd="@dimen/normal_margin"
-                android:paddingBottom="@dimen/normal_margin"
-                android:textSize="@dimen/bigger_text_size"
-                android:tooltipText="John Doe" />
+                android:textAppearance="@style/TextAppearance.Contacts.HeadlineMedium"
+                tools:text="林晚" />
 
-            <ImageView
-                android:id="@+id/contact_numbers_image"
-                android:layout_width="@dimen/contact_icons_size"
-                android:layout_height="@dimen/contact_icons_size"
-                android:layout_alignTop="@+id/contact_numbers_holder"
-                android:layout_marginStart="@dimen/normal_margin"
-                android:contentDescription="@null"
-                android:paddingTop="@dimen/medium_margin"
-                android:paddingEnd="@dimen/small_margin"
-                android:paddingBottom="@dimen/small_margin"
-                android:src="@drawable/ic_phone_vector"
-                android:visibility="gone" />
+            <!-- ══════════════ 快捷动作 ══════════════
+                 设计稿是四格（拨号/短信/视频/邮件），这里做三格 ——
+                 Activity 只接了拨号、短信、邮件三个处理器，
+                 摆一个点不动的「视频」比少一格更糟。 -->
 
-            <ImageView
-                android:id="@+id/contact_emails_image"
-                android:layout_width="@dimen/contact_icons_size"
-                android:layout_height="@dimen/contact_icons_size"
-                android:layout_alignTop="@+id/contact_emails_holder"
-                android:layout_marginStart="@dimen/normal_margin"
-                android:contentDescription="@null"
-                android:paddingTop="@dimen/medium_margin"
-                android:paddingEnd="@dimen/small_margin"
-                android:paddingBottom="@dimen/small_margin"
-                android:src="@drawable/ic_mail_vector"
-                android:visibility="gone" />
+            <LinearLayout
+                android:id="@+id/contact_actions_holder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="24dp"
+                android:orientation="horizontal">
 
-            <ImageView
-                android:id="@+id/contact_addresses_image"
-                android:layout_width="@dimen/contact_icons_size"
-                android:layout_height="@dimen/contact_icons_size"
-                android:layout_alignTop="@+id/contact_addresses_holder"
-                android:layout_marginStart="@dimen/normal_margin"
-                android:contentDescription="@null"
-                android:paddingTop="@dimen/medium_margin"
-                android:paddingEnd="@dimen/small_margin"
-                android:paddingBottom="@dimen/small_margin"
-                android:src="@drawable/ic_place_vector"
-                android:visibility="gone" />
+                <ImageView
+                    android:id="@+id/contact_start_call"
+                    android:layout_width="@dimen/m3_detail_action_width"
+                    android:layout_height="@dimen/m3_detail_action_height"
+                    android:background="@drawable/m3_bg_action"
+                    android:contentDescription="@string/call_contact"
+                    android:padding="16dp"
+                    android:src="@drawable/ic_m3_call"
+                    app:tint="?attr/colorOnSecondaryContainer" />
 
-            <ImageView
-                android:id="@+id/contact_ims_image"
-                android:layout_width="@dimen/contact_icons_size"
-                android:layout_height="@dimen/contact_icons_size"
-                android:layout_alignTop="@+id/contact_ims_holder"
-                android:layout_marginStart="@dimen/normal_margin"
-                android:contentDescription="@null"
-                android:paddingTop="@dimen/medium_margin"
-                android:paddingEnd="@dimen/small_margin"
-                android:paddingBottom="@dimen/small_margin"
-                android:src="@drawable/ic_im"
-                android:visibility="gone" />
+                <ImageView
+                    android:id="@+id/contact_send_sms"
+                    android:layout_width="@dimen/m3_detail_action_width"
+                    android:layout_height="@dimen/m3_detail_action_height"
+                    android:layout_marginStart="@dimen/m3_detail_action_gap"
+                    android:background="@drawable/m3_bg_action"
+                    android:contentDescription="@string/send_sms"
+                    android:padding="16dp"
+                    android:src="@drawable/ic_m3_chat_bubble"
+                    app:tint="?attr/colorOnSecondaryContainer" />
 
-            <ImageView
-                android:id="@+id/contact_events_image"
-                android:layout_width="@dimen/contact_icons_size"
-                android:layout_height="@dimen/contact_icons_size"
-                android:layout_alignTop="@+id/contact_events_holder"
-                android:layout_marginStart="@dimen/normal_margin"
-                android:contentDescription="@null"
-                android:paddingTop="@dimen/medium_margin"
-                android:paddingEnd="@dimen/small_margin"
-                android:paddingBottom="@dimen/small_margin"
-                android:src="@drawable/ic_cake_vector"
-                android:visibility="gone" />
+                <ImageView
+                    android:id="@+id/contact_send_email"
+                    android:layout_width="@dimen/m3_detail_action_width"
+                    android:layout_height="@dimen/m3_detail_action_height"
+                    android:layout_marginStart="@dimen/m3_detail_action_gap"
+                    android:background="@drawable/m3_bg_action"
+                    android:contentDescription="@string/send_email"
+                    android:padding="16dp"
+                    android:src="@drawable/ic_m3_mail"
+                    app:tint="?attr/colorOnSecondaryContainer" />
+            </LinearLayout>
 
-            <ImageView
-                android:id="@+id/contact_notes_image"
-                android:layout_width="@dimen/contact_icons_size"
-                android:layout_height="@dimen/contact_icons_size"
-                android:layout_alignTop="@+id/contact_notes"
-                android:layout_marginStart="@dimen/normal_margin"
-                android:contentDescription="@null"
-                android:paddingTop="@dimen/medium_margin"
-                android:paddingEnd="@dimen/small_margin"
-                android:paddingBottom="@dimen/small_margin"
-                android:src="@drawable/ic_label_vector"
-                android:visibility="gone" />
+            <!-- ══════════════ 信息卡片 ══════════════
+                 每个 section 一张 26dp 圆角卡。section 为空时
+                 Activity 会把 holder 设成 gone，竖排布局下整块自然消失，
+                 不会像旧版那样留下一个错位的图标。
 
-            <ImageView
-                android:id="@+id/contact_ringtone_image"
-                android:layout_width="@dimen/contact_icons_size"
-                android:layout_height="@dimen/contact_icons_size"
-                android:layout_alignTop="@+id/contact_ringtone"
-                android:layout_marginStart="@dimen/normal_margin"
-                android:contentDescription="@null"
-                android:paddingTop="@dimen/medium_margin"
-                android:paddingEnd="@dimen/small_margin"
-                android:paddingBottom="@dimen/small_margin"
-                android:src="@drawable/ic_bell_vector"
-                android:visibility="gone" />
+                 每个 section 的图标现在放在卡片标题位置。 -->
 
-            <ImageView
-                android:id="@+id/contact_organization_image"
-                android:layout_width="@dimen/contact_icons_size"
-                android:layout_height="@dimen/contact_icons_size"
-                android:layout_alignTop="@+id/contact_organization_company"
-                android:layout_marginStart="@dimen/normal_margin"
-                android:contentDescription="@null"
-                android:paddingTop="@dimen/medium_margin"
-                android:paddingEnd="@dimen/small_margin"
-                android:paddingBottom="@dimen/small_margin"
-                android:src="@drawable/ic_business_vector"
-                android:visibility="gone" />
+            <!-- 电话 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/m3_card_margin_horizontal"
+                android:layout_marginTop="24dp"
+                android:layout_marginEnd="@dimen/m3_card_margin_horizontal"
+                android:background="@drawable/m3_bg_card"
+                android:orientation="vertical">
 
-            <ImageView
-                android:id="@+id/contact_websites_image"
-                android:layout_width="@dimen/contact_icons_size"
-                android:layout_height="@dimen/contact_icons_size"
-                android:layout_alignTop="@+id/contact_websites_holder"
-                android:layout_marginStart="@dimen/normal_margin"
-                android:contentDescription="@null"
-                android:paddingTop="@dimen/medium_margin"
-                android:paddingEnd="@dimen/small_margin"
-                android:paddingBottom="@dimen/small_margin"
-                android:src="@drawable/ic_link_vector"
-                android:visibility="gone" />
+                <ImageView
+                    android:id="@+id/contact_numbers_image"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_m3_call"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/contact_numbers_holder"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- 邮箱 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/m3_card_margin_horizontal"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="@dimen/m3_card_margin_horizontal"
+                android:background="@drawable/m3_bg_card"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/contact_emails_image"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_m3_mail"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/contact_emails_holder"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- 地址 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/m3_card_margin_horizontal"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="@dimen/m3_card_margin_horizontal"
+                android:background="@drawable/m3_bg_card"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/contact_addresses_image"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:contentDescription="@null"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/contact_addresses_holder"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- 即时通讯 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/m3_card_margin_horizontal"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="@dimen/m3_card_margin_horizontal"
+                android:background="@drawable/m3_bg_card"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/contact_ims_image"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:contentDescription="@null"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/contact_ims_holder"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- 纪念日 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/m3_card_margin_horizontal"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="@dimen/m3_card_margin_horizontal"
+                android:background="@drawable/m3_bg_card"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/contact_events_image"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_m3_cake"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/contact_events_holder"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- 网站 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/m3_card_margin_horizontal"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="@dimen/m3_card_margin_horizontal"
+                android:background="@drawable/m3_bg_card"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/contact_websites_image"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:contentDescription="@null"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/contact_websites_holder"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- ══════ 公司 / 备注 / 铃声 ══════
+                 这三个是单值字段，合并成一张卡。 -->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/m3_card_margin_horizontal"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="@dimen/m3_card_margin_horizontal"
+                android:background="@drawable/m3_bg_card"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/contact_organization_image"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_m3_apartment"
+                    android:visibility="gone" />
+
+                <org.fossify.commons.views.MyTextView
+                    android:id="@+id/contact_organization_company"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/m3_bg_card_row"
+                    android:paddingStart="@dimen/m3_card_row_padding_horizontal"
+                    android:paddingTop="@dimen/m3_card_row_padding_vertical"
+                    android:paddingEnd="@dimen/m3_card_row_padding_horizontal"
+                    android:paddingBottom="4dp"
+                    android:textAppearance="@style/TextAppearance.Contacts.BodyLarge"
+                    android:visibility="gone"
+                    tools:text="某某科技" />
+
+                <org.fossify.commons.views.MyTextView
+                    android:id="@+id/contact_organization_job_position"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="@dimen/m3_card_row_padding_horizontal"
+                    android:paddingEnd="@dimen/m3_card_row_padding_horizontal"
+                    android:paddingBottom="@dimen/m3_card_row_padding_vertical"
+                    android:textAppearance="@style/TextAppearance.Contacts.BodySmall"
+                    android:visibility="gone"
+                    tools:text="产品设计" />
+
+                <ImageView
+                    android:id="@+id/contact_notes_image"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:contentDescription="@null"
+                    android:visibility="gone" />
+
+                <org.fossify.commons.views.MyTextView
+                    android:id="@+id/contact_notes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/m3_bg_card_row"
+                    android:paddingStart="@dimen/m3_card_row_padding_horizontal"
+                    android:paddingTop="@dimen/m3_card_row_padding_vertical"
+                    android:paddingEnd="@dimen/m3_card_row_padding_horizontal"
+                    android:paddingBottom="@dimen/m3_card_row_padding_vertical"
+                    android:textAppearance="@style/TextAppearance.Contacts.BodyLarge"
+                    android:visibility="gone"
+                    tools:text="备注内容" />
+
+                <ImageView
+                    android:id="@+id/contact_ringtone_image"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:contentDescription="@null"
+                    android:visibility="gone" />
+
+                <org.fossify.commons.views.MyTextView
+                    android:id="@+id/contact_ringtone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/m3_bg_card_row"
+                    android:paddingStart="@dimen/m3_card_row_padding_horizontal"
+                    android:paddingTop="@dimen/m3_card_row_padding_vertical"
+                    android:paddingEnd="@dimen/m3_card_row_padding_horizontal"
+                    android:paddingBottom="@dimen/m3_card_row_padding_vertical"
+                    android:textAppearance="@style/TextAppearance.Contacts.BodyLarge"
+                    android:visibility="gone"
+                    tools:text="默认铃声" />
+            </LinearLayout>
+
+            <!-- ══════════════ 所属群组 ══════════════ -->
+
+            <TextView
+                android:id="@+id/contact_groups_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingStart="20dp"
+                android:paddingTop="20dp"
+                android:paddingEnd="20dp"
+                android:paddingBottom="8dp"
+                android:text="@string/m3_detail_groups"
+                android:textAppearance="@style/TextAppearance.Contacts.SectionHeader"
+                android:textColor="?attr/colorOnSurfaceVariant" />
 
             <ImageView
                 android:id="@+id/contact_groups_image"
-                android:layout_width="@dimen/contact_icons_size"
-                android:layout_height="@dimen/contact_icons_size"
-                android:layout_alignTop="@+id/contact_groups_holder"
-                android:layout_marginStart="@dimen/normal_margin"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
                 android:contentDescription="@null"
-                android:paddingTop="@dimen/medium_margin"
-                android:paddingEnd="@dimen/small_margin"
-                android:paddingBottom="@dimen/small_margin"
-                android:src="@drawable/ic_people_vector"
-                android:visibility="gone" />
-
-            <ImageView
-                android:id="@+id/contact_source_image"
-                android:layout_width="@dimen/contact_icons_size"
-                android:layout_height="@dimen/contact_icons_size"
-                android:layout_alignTop="@+id/contact_sources_holder"
-                android:layout_marginStart="@dimen/normal_margin"
-                android:contentDescription="@null"
-                android:paddingTop="@dimen/medium_margin"
-                android:paddingEnd="@dimen/small_margin"
-                android:paddingBottom="@dimen/small_margin"
-                android:src="@drawable/ic_account_box_vector"
-                android:visibility="gone" />
-
-            <LinearLayout
-                android:id="@+id/contact_numbers_holder"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/contact_name"
-                android:layout_toEndOf="@+id/contact_numbers_image"
-                android:orientation="vertical"
-                android:visibility="gone" />
-
-            <LinearLayout
-                android:id="@+id/contact_emails_holder"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/contact_numbers_holder"
-                android:layout_toEndOf="@+id/contact_name_image"
-                android:orientation="vertical"
-                android:visibility="gone" />
-
-            <LinearLayout
-                android:id="@+id/contact_addresses_holder"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/contact_emails_holder"
-                android:layout_toEndOf="@+id/contact_name_image"
-                android:orientation="vertical"
-                android:visibility="gone" />
-
-            <LinearLayout
-                android:id="@+id/contact_ims_holder"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/contact_addresses_holder"
-                android:layout_toEndOf="@+id/contact_name_image"
-                android:orientation="vertical"
-                android:visibility="gone" />
-
-            <LinearLayout
-                android:id="@+id/contact_events_holder"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/contact_ims_holder"
-                android:layout_toEndOf="@+id/contact_name_image"
-                android:orientation="vertical"
-                android:visibility="gone" />
-
-            <LinearLayout
-                android:id="@+id/contact_websites_holder"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/contact_organization_job_position"
-                android:layout_toEndOf="@+id/contact_name_image"
-                android:orientation="vertical"
                 android:visibility="gone" />
 
             <LinearLayout
                 android:id="@+id/contact_groups_holder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/contact_websites_holder"
-                android:layout_toEndOf="@+id/contact_name_image"
+                android:layout_marginStart="@dimen/m3_card_margin_horizontal"
+                android:layout_marginEnd="@dimen/m3_card_margin_horizontal"
                 android:orientation="vertical"
+                android:visibility="gone" />
+
+            <!-- ══════════════ 联系人来源 ══════════════ -->
+
+            <ImageView
+                android:id="@+id/contact_source_image"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:contentDescription="@null"
                 android:visibility="gone" />
 
             <LinearLayout
                 android:id="@+id/contact_sources_holder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/contact_groups_holder"
-                android:layout_toEndOf="@+id/contact_name_image"
+                android:layout_marginStart="@dimen/m3_card_margin_horizontal"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="@dimen/m3_card_margin_horizontal"
+                android:background="@drawable/m3_bg_card"
                 android:orientation="vertical"
                 android:visibility="gone" />
 
-            <org.fossify.commons.views.MyTextView
-                android:id="@+id/contact_notes"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/contact_events_holder"
-                android:layout_centerVertical="true"
-                android:layout_toEndOf="@+id/contact_notes_image"
-                android:background="?attr/selectableItemBackground"
-                android:lineSpacingExtra="@dimen/medium_margin"
-                android:paddingStart="@dimen/small_margin"
-                android:paddingTop="@dimen/normal_margin"
-                android:paddingBottom="@dimen/normal_margin"
-                android:textSize="@dimen/bigger_text_size"
-                android:visibility="gone" />
-
-            <org.fossify.commons.views.MyTextView
-                android:id="@+id/contact_ringtone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/contact_notes"
-                android:layout_centerVertical="true"
-                android:layout_toEndOf="@+id/contact_ringtone_image"
-                android:background="?attr/selectableItemBackground"
-                android:lineSpacingExtra="@dimen/medium_margin"
-                android:paddingStart="@dimen/small_margin"
-                android:paddingTop="@dimen/normal_margin"
-                android:paddingBottom="@dimen/normal_margin"
-                android:textSize="@dimen/bigger_text_size"
-                android:visibility="gone" />
-
-            <org.fossify.commons.views.MyTextView
-                android:id="@+id/contact_organization_company"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/contact_ringtone"
-                android:layout_centerVertical="true"
-                android:layout_toEndOf="@+id/contact_organization_image"
-                android:background="?attr/selectableItemBackground"
-                android:lineSpacingExtra="@dimen/medium_margin"
-                android:paddingStart="@dimen/small_margin"
-                android:paddingTop="@dimen/normal_margin"
-                android:paddingBottom="@dimen/normal_margin"
-                android:textSize="@dimen/bigger_text_size"
-                android:visibility="gone" />
-
-            <org.fossify.commons.views.MyTextView
-                android:id="@+id/contact_organization_job_position"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/contact_organization_company"
-                android:layout_centerVertical="true"
-                android:layout_toEndOf="@+id/contact_organization_image"
-                android:background="?attr/selectableItemBackground"
-                android:lineSpacingExtra="@dimen/medium_margin"
-                android:paddingStart="@dimen/small_margin"
-                android:paddingTop="@dimen/normal_margin"
-                android:paddingBottom="@dimen/normal_margin"
-                android:textSize="@dimen/bigger_text_size"
-                android:visibility="gone" />
-
-        </RelativeLayout>
+        </LinearLayout>
     </ScrollView>
 
+    <!-- 点头像后的全屏大图。盖在最上层。 -->
     <ImageView
         android:id="@+id/contact_photo_big"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:alpha="0"
-        android:background="#BB000000"
-        android:clickable="true"
-        android:padding="@dimen/activity_margin"
+        android:background="#DD000000"
+        android:contentDescription="@string/change_photo"
         android:scaleType="fitCenter"
         android:visibility="gone" />
 
-    <ImageView
-        android:id="@+id/contact_photo_top_shadow"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/top_shadow_height"
-        android:layout_alignParentTop="true"
-        android:background="@drawable/gradient_background_flipped"
-        android:contentDescription="@null" />
-
-    <org.fossify.commons.views.MyAppBarLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/contact_appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:background="@android:color/transparent"
-        android:elevation="0dp"
         app:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/contact_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:menu="@menu/menu_view_contact"
-            app:navigationIcon="@drawable/ic_arrow_left_vector" />
+            android:background="@android:color/transparent"
+            app:navigationIcon="@drawable/ic_m3_arrow_back"
+            app:title="" />
+    </com.google.android.material.appbar.AppBarLayout>
 
-    </org.fossify.commons.views.MyAppBarLayout>
 </RelativeLayout>

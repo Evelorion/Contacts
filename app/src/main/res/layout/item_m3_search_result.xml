@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 搜索结果行。比列表行紧凑（头像 44→44 但上下 10→10），右侧带直拨按钮。 -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/search_item_frame"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/m3_bg_row"
+    android:clickable="true"
+    android:focusable="true"
+    android:minHeight="64dp"
+    android:paddingStart="16dp"
+    android:paddingTop="10dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="10dp">
+
+    <ImageView
+        android:id="@+id/search_item_avatar"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:importantForAccessibility="no"
+        android:scaleType="centerCrop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/search_item_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.Contacts.BodyLarge"
+        app:layout_constraintBottom_toTopOf="@+id/search_item_number"
+        app:layout_constraintEnd_toStartOf="@+id/search_item_call"
+        app:layout_constraintStart_toEndOf="@+id/search_item_avatar"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="林晚" />
+
+    <TextView
+        android:id="@+id/search_item_number"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.Contacts.BodySmall"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/search_item_call"
+        app:layout_constraintStart_toEndOf="@+id/search_item_avatar"
+        app:layout_constraintTop_toBottomOf="@+id/search_item_name"
+        tools:text="138 0013 8000" />
+
+    <ImageView
+        android:id="@+id/search_item_call"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:background="@drawable/m3_bg_circle_ripple"
+        android:contentDescription="@string/m3_action_call"
+        android:padding="11dp"
+        android:src="@drawable/ic_m3_call"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="?attr/colorPrimary" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

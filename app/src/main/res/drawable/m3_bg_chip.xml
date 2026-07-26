@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 筛选 chip。选中 = 填充 secondaryContainer 且去掉描边；
+     未选中 = 透明 + 1dp 描边。M3 明确要求两者只能有一个有描边，
+     否则选中态看起来像"被框住"而不是"被选中"。 -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="?attr/colorOnSurfaceVariant">
+    <item>
+        <selector>
+            <item android:state_selected="true" android:drawable="@drawable/m3_bg_chip_selected" />
+            <item android:drawable="@drawable/m3_bg_chip_unselected" />
+        </selector>
+    </item>
+</ripple>

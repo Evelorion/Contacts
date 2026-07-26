@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  列表里的字母分组头（A / B / C…）。
+
+  背景必须是不透明的 colorSurface —— 它是吸顶的，透明的话滚动时
+  下面的联系人会从字母底下透出来。
+-->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/index_letter"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/colorSurface"
+    android:paddingStart="@dimen/m3_row_padding_horizontal"
+    android:paddingTop="@dimen/m3_index_letter_padding_top"
+    android:paddingEnd="@dimen/m3_row_padding_horizontal"
+    android:paddingBottom="@dimen/m3_index_letter_padding_bottom"
+    android:textAppearance="@style/TextAppearance.Contacts.IndexLetter" />

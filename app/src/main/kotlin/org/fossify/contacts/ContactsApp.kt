@@ -3,6 +3,7 @@ package org.fossify.contacts
 import android.content.Context
 import org.fossify.commons.FossifyApp
 import org.fossify.contacts.sync.localdb.EncryptedDatabases
+import org.fossify.contacts.ui.M3Theme
 
 /**
  * 自定义 Application，唯一的作用是在**任何人碰数据库之前**把 SQLCipher 装好。
@@ -31,4 +32,12 @@ class ContactsApp : FossifyApp() {
         // 设置页应当把这个状态显示出来，不能静默降级。
         EncryptedDatabases.install(this)
     }
+
+    override fun onCreate() {
+        super.onCreate()
+        // 把用户选的深浅模式还给 AppCompat。必须在任何 Activity 创建之前生效，
+        // 否则第一个页面会先按系统默认渲染一帧再翻过来，肉眼能看到闪一下。
+        M3Theme.applyDarkModeGlobally(this)
+    }
+
 }

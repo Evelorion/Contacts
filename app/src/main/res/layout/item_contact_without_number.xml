@@ -1,25 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  联系人列表行 · M3 版（without number）
+
+  设计稿：头像 44 圆形 + 姓名 16sp + 副标题 13sp + 收藏星标，
+  左右 16 上下 10，按下时圆角 20 的 ripple。
+
+  头像用 ImageView 承载 InitialAvatarDrawable（自己画的首字母色块），
+  有照片时直接换成照片。不用 FrameLayout+TextView 是为了每行少两层 View。
+-->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/item_contact_frame"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/tiny_margin"
-    android:layout_marginBottom="@dimen/tiny_margin"
-    android:background="@drawable/contact_card_background_ripple"
+    android:background="@drawable/m3_bg_row"
     android:clickable="true"
     android:focusable="true"
-    android:minHeight="@dimen/one_line_list_item_min_height"
-    android:paddingHorizontal="@dimen/activity_margin"
-    android:paddingVertical="@dimen/medium_margin">
+    android:minHeight="64dp"
+    android:paddingStart="@dimen/m3_row_padding_horizontal"
+    android:paddingTop="@dimen/m3_row_padding_vertical"
+    android:paddingEnd="@dimen/m3_row_padding_horizontal"
+    android:paddingBottom="@dimen/m3_row_padding_vertical">
 
     <ImageView
         android:id="@+id/item_contact_image"
-        android:layout_width="@dimen/list_icon_size_medium"
-        android:layout_height="@dimen/list_icon_size_medium"
-        android:padding="@dimen/tiny_margin"
-        android:src="@drawable/ic_person_vector"
+        android:layout_width="@dimen/m3_avatar_size"
+        android:layout_height="@dimen/m3_avatar_size"
+        android:importantForAccessibility="no"
+        android:scaleType="centerCrop"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -28,17 +37,49 @@
         android:id="@+id/item_contact_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="@dimen/list_item_padding_horizontal"
+        android:layout_marginStart="@dimen/m3_row_gap"
         android:ellipsize="end"
         android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.Contacts.BodyLarge"
         android:textDirection="locale"
-        android:textSize="@dimen/list_primary_text_size"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/drag_handle_icon"
+        app:layout_constraintBottom_toTopOf="@+id/item_contact_number"
+        app:layout_constraintEnd_toStartOf="@+id/item_contact_favorite"
         app:layout_constraintStart_toEndOf="@+id/item_contact_image"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="John Doe" />
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="林晚" />
 
+    <TextView
+        android:id="@+id/item_contact_number"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_marginStart="@dimen/m3_row_gap"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.Contacts.BodySmall"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/item_contact_favorite"
+        app:layout_constraintStart_toEndOf="@+id/item_contact_image"
+        app:layout_constraintTop_toBottomOf="@+id/item_contact_name"
+        tools:text="产品设计 · 138 0013 8000" />
+
+    <!-- 收藏星标。只在已收藏时显示，用主色，和列表里其余灰阶拉开。 -->
+    <ImageView
+        android:id="@+id/item_contact_favorite"
+        android:layout_width="19dp"
+        android:layout_height="19dp"
+        android:layout_marginStart="8dp"
+        android:contentDescription="@string/favorites_tab"
+        android:src="@drawable/ic_m3_star"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/drag_handle_icon"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="?attr/colorPrimary"
+        tools:visibility="visible" />
+
+    <!-- 拖拽手柄。只在收藏页的手动排序模式下出现。 -->
     <ImageView
         android:id="@+id/drag_handle_icon"
         android:layout_width="@dimen/list_touch_target_min"
@@ -50,6 +91,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:visibility="visible" />
+        app:tint="?attr/colorOnSurfaceVariant" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

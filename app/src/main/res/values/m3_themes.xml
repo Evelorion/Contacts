@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  M3 主题。
+
+  ── 为什么不直接继承 Theme.Material3.DayNight ──────────────────────
+
+  commons（org.fossify:commons）里的 View 会自己去读 AppTheme 的属性做着色。
+  完全换掉父主题的话它们取不到值，表现为一片黑或一片白。
+  所以这里继承 AppTheme.Base（commons 提供的），在它之上叠加 M3 的语义属性。
+
+  代价：commons 的对话框、快速滚动条还是旧样式。全量替换 commons 是另一件事。
+
+  ── 配色怎么切 ────────────────────────────────────────────────
+
+  三套配色不是三个主题，是三个 ThemeOverlay。Activity 在 onCreate 里按用户
+  的选择叠加，切换后 recreate()。见 M3Theme.kt。
+-->
+<resources>
+
+    <style name="Theme.Contacts.M3" parent="AppTheme.Base">
+        <item name="colorPrimary">@color/m3_primary</item>
+        <item name="colorOnPrimary">@color/m3_on_primary</item>
+        <item name="colorPrimaryContainer">@color/m3_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/m3_on_primary_container</item>
+
+        <item name="colorSecondaryContainer">@color/m3_secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/m3_on_secondary_container</item>
+        <item name="colorTertiaryContainer">@color/m3_tertiary_container</item>
+        <item name="colorOnTertiaryContainer">@color/m3_on_tertiary_container</item>
+
+        <!-- 表面层级。M3 用五级容器色代替阴影表达层次，
+             这也是为什么下面很多组件的 elevation 是 0。 -->
+        <item name="colorSurface">@color/m3_surface</item>
+        <item name="colorSurfaceContainerLow">@color/m3_surface_container_low</item>
+        <item name="colorSurfaceContainer">@color/m3_surface_container</item>
+        <item name="colorSurfaceContainerHigh">@color/m3_surface_container_high</item>
+        <item name="colorSurfaceContainerHighest">@color/m3_surface_container_highest</item>
+        <item name="colorOnSurface">@color/m3_on_surface</item>
+        <item name="colorOnSurfaceVariant">@color/m3_on_surface_variant</item>
+
+        <item name="colorOutline">@color/m3_outline</item>
+        <item name="colorOutlineVariant">@color/m3_outline_variant</item>
+        <item name="colorError">@color/m3_error</item>
+
+        <!-- 系统栏跟着表面色走，避免顶部一条突兀的色带 -->
+        <item name="android:statusBarColor">@color/m3_surface</item>
+        <item name="android:navigationBarColor">@color/m3_surface_container_low</item>
+        <item name="android:windowBackground">@color/m3_surface</item>
+    </style>
+
+    <!-- ── 配色 overlay ──────────────────────────────────────── -->
+
+    <style name="ThemeOverlay.Contacts.Teal" parent="">
+        <item name="colorPrimary">@color/m3_teal_primary</item>
+        <item name="colorOnPrimary">@color/m3_teal_on_primary</item>
+        <item name="colorPrimaryContainer">@color/m3_teal_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/m3_teal_on_primary_container</item>
+        <item name="colorSecondaryContainer">@color/m3_teal_secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/m3_teal_on_secondary_container</item>
+        <item name="colorTertiaryContainer">@color/m3_teal_tertiary_container</item>
+        <item name="colorOnTertiaryContainer">@color/m3_teal_on_tertiary_container</item>
+        <item name="colorSurface">@color/m3_teal_surface</item>
+        <item name="colorSurfaceContainerLow">@color/m3_teal_surface_container_low</item>
+        <item name="colorSurfaceContainer">@color/m3_teal_surface_container</item>
+        <item name="colorSurfaceContainerHigh">@color/m3_teal_surface_container_high</item>
+        <item name="colorSurfaceContainerHighest">@color/m3_teal_surface_container_highest</item>
+        <item name="android:statusBarColor">@color/m3_teal_surface</item>
+        <item name="android:navigationBarColor">@color/m3_teal_surface_container_low</item>
+        <item name="android:windowBackground">@color/m3_teal_surface</item>
+    </style>
+
+    <style name="ThemeOverlay.Contacts.Warm" parent="">
+        <item name="colorPrimary">@color/m3_warm_primary</item>
+        <item name="colorOnPrimary">@color/m3_warm_on_primary</item>
+        <item name="colorPrimaryContainer">@color/m3_warm_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/m3_warm_on_primary_container</item>
+        <item name="colorSecondaryContainer">@color/m3_warm_secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/m3_warm_on_secondary_container</item>
+        <item name="colorTertiaryContainer">@color/m3_warm_tertiary_container</item>
+        <item name="colorOnTertiaryContainer">@color/m3_warm_on_tertiary_container</item>
+        <item name="colorSurface">@color/m3_warm_surface</item>
+        <item name="colorSurfaceContainerLow">@color/m3_warm_surface_container_low</item>
+        <item name="colorSurfaceContainer">@color/m3_warm_surface_container</item>
+        <item name="colorSurfaceContainerHigh">@color/m3_warm_surface_container_high</item>
+        <item name="colorSurfaceContainerHighest">@color/m3_warm_surface_container_highest</item>
+        <item name="android:statusBarColor">@color/m3_warm_surface</item>
+        <item name="android:navigationBarColor">@color/m3_warm_surface_container_low</item>
+        <item name="android:windowBackground">@color/m3_warm_surface</item>
+    </style>
+
+    <!-- ── 排版 ──────────────────────────────────────────────
+         设计稿的 px 直接当 sp 用。名字沿用 M3 官方 type scale，
+         这样对着 m3.material.io 查得到。 -->
+
+    <!-- 主页大标题「联系人」 32sp/40 -->
+    <style name="TextAppearance.Contacts.HeadlineLarge" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">32sp</item>
+        <item name="android:lineSpacingExtra">8sp</item>
+        <item name="android:letterSpacing">-0.006</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <!-- 详情页姓名、收藏页标题 30sp 600 -->
+    <style name="TextAppearance.Contacts.HeadlineMedium" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">30sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">-0.01</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <!-- 页面标题栏「设置」 22sp -->
+    <style name="TextAppearance.Contacts.TitleLarge" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <!-- 列表主文本、信息行值 16sp/22 -->
+    <style name="TextAppearance.Contacts.BodyLarge" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">16sp</item>
+        <item name="android:lineSpacingExtra">3sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <!-- 列表副文本 13sp/18 -->
+    <style name="TextAppearance.Contacts.BodySmall" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">13sp</item>
+        <item name="android:lineSpacingExtra">2sp</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <!-- 分区标题「显示与排序」 13sp 600 主色 -->
+    <style name="TextAppearance.Contacts.SectionHeader" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.03</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+    </style>
+
+    <!-- 列表里的字母分组头。规格同上但字距更大（设计稿 .6px），
+         单独一条是为了以后能和分区标题分开调。 -->
+    <style name="TextAppearance.Contacts.IndexLetter" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.046</item>
+        <item name="android:textColor">?attr/colorPrimary</item>
+    </style>
+
+    <!-- 筛选 chip、按钮 14sp -->
+    <style name="TextAppearance.Contacts.LabelLarge" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <!-- 底部导航、快捷动作标签 12sp -->
+    <style name="TextAppearance.Contacts.LabelSmall" parent="TextAppearance.AppCompat">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+</resources>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Material Symbols Rounded · cake -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960"
+    android:tint="?attr/colorOnSurfaceVariant">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M200,-120q-33,0 -56.5,-23.5T120,-200v-160q0,-33 23.5,-56.5T200,-440v-120q0,-33 23.5,-56.5T280,-640h160v-49q-14,-8 -22,-21.5t-8,-29.5q0,-11 4.5,-22.5T428,-784l52,-56 52,56q9,10 13.5,21.5T550,-740q0,16 -8,29.5T520,-689v49h160q33,0 56.5,23.5T760,-560v120q33,0 56.5,23.5T840,-360v160q0,33 -23.5,56.5T760,-120H200Z" />
+</vector>

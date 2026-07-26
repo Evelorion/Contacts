@@ -1,5 +1,6 @@
 package org.fossify.contacts.sync.ui
 
+import org.fossify.contacts.ui.M3Theme
 import android.os.Bundle
 import android.text.format.DateUtils
 import android.view.View
@@ -34,6 +35,8 @@ class SyncSetupActivity : SimpleActivity() {
     private val vault by lazy { VaultManager.get(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // 必须在 setContentView 之前 —— 晚了的话已 inflate 的 View 会留着旧主题的颜色
+        M3Theme.apply(this)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         setupButtons()

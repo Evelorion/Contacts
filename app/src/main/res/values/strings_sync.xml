@@ -13,8 +13,9 @@
 
     <!-- 权限说明。这两条会出现在系统的权限详情页里，
          写清楚一点，别让用户以为是可疑权限。 -->
-    <string name="privacy_permission_label">读取私密联系人</string>
-    <string name="privacy_permission_description">允许同一开发者签名的应用读取本机的私密联系人</string>
+    <!-- privacy_permission_label / _description 已经在 strings.xml 里，
+         不要在这里重复定义 —— aapt 会直接报 Duplicate resources 编译失败。
+         要改文案就改 strings.xml 那两条。 -->
     <string name="vault_bridge_permission_label">读取同步凭据</string>
     <string name="vault_bridge_permission_description">允许同一开发者签名的应用取得受限的同步密钥，用于加密自己的数据</string>
 

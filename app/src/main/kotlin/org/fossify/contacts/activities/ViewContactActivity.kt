@@ -24,6 +24,7 @@ import org.fossify.commons.helpers.*
 import org.fossify.commons.models.PhoneNumber
 import org.fossify.commons.models.contacts.*
 import org.fossify.contacts.R
+import org.fossify.contacts.ui.M3Theme
 import org.fossify.contacts.databinding.*
 import org.fossify.contacts.dialogs.ChooseSocialDialog
 import org.fossify.contacts.dialogs.ManageVisibleFieldsDialog
@@ -47,6 +48,8 @@ class ViewContactActivity : ContactActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // 必须在 setContentView 之前 —— 晚了的话已 inflate 的 View 会留着旧主题的颜色
+        M3Theme.apply(this)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
