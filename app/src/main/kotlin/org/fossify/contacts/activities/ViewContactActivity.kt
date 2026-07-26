@@ -48,9 +48,10 @@ class ViewContactActivity : ContactActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // 必须在 setContentView 之前 —— 晚了的话已 inflate 的 View 会留着旧主题的颜色
-        M3Theme.apply(this)
         super.onCreate(savedInstanceState)
+        // 必须在 super.onCreate() **之后** —— commons 的 BaseSimpleActivity
+        // 会在它的 onCreate 里 setTheme() 把主题整个换掉，早于它设是白费的。
+        M3Theme.apply(this)
         setContentView(binding.root)
 
         if (checkAppSideloading()) {

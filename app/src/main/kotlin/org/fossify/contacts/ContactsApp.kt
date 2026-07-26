@@ -38,6 +38,11 @@ class ContactsApp : FossifyApp() {
         // 把用户选的深浅模式还给 AppCompat。必须在任何 Activity 创建之前生效，
         // 否则第一个页面会先按系统默认渲染一帧再翻过来，肉眼能看到闪一下。
         M3Theme.applyDarkModeGlobally(this)
+        // 把 M3 的颜色写进 commons 的颜色偏好。commons 有大量代码在运行时
+        // 给 View 重新着色（updateTextColors / getProperTextColor / …），
+        // 那些值来自 SharedPreferences，和主题属性无关。不同步的话快速滚动条、
+        // 对话框、空列表提示会保持 commons 的蓝，和 M3 的紫拼在一起。
+        M3Theme.syncCommonsColors(this)
     }
 
 }

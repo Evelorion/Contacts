@@ -50,9 +50,10 @@ class SettingsActivity : SimpleActivity() {
     private var ignoredExportContactSources = HashSet<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // 必须在 setContentView 之前
-        M3Theme.apply(this)
         super.onCreate(savedInstanceState)
+        // 必须在 super.onCreate() **之后** —— commons 的 BaseSimpleActivity
+        // 会在它的 onCreate 里 setTheme() 把主题整个换掉，早于它设是白费的。
+        M3Theme.apply(this)
         setContentView(binding.root)
         setupEdgeToEdge(padBottomSystem = listOf(binding.settingsNestedScrollview))
         setupMaterialScrollListener(binding.settingsNestedScrollview, binding.settingsAppbar)

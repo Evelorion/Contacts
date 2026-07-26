@@ -26,4 +26,15 @@ class Config(context: Context) : BaseConfig(context) {
         get() = prefs.getStringSet(PRIVACY_ALLOWED_PACKAGES, setOf())?.toSet() ?: emptySet()
         set(privacyAllowedPackages) = prefs.edit().remove(PRIVACY_ALLOWED_PACKAGES).putStringSet(PRIVACY_ALLOWED_PACKAGES, privacyAllowedPackages).apply()
 
+
+    /**
+     * 用户是否主动改过收藏页的视图类型。
+     *
+     * 收藏页默认用网格（设计稿就是两列卡片），但只在用户没表态时才强制 ——
+     * 不加这个标记的话，用户每次切回列表，下次进来又被改成网格。
+     */
+    var hasCustomFavoritesViewType: Boolean
+        get() = prefs.getBoolean("has_custom_favorites_view_type", false)
+        set(value) = prefs.edit().putBoolean("has_custom_favorites_view_type", value).apply()
+
 }

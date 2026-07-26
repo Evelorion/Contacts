@@ -63,6 +63,12 @@ class FavoritesFragment(context: Context, attributeSet: AttributeSet) : MyViewPa
         setupViewVisibility(favouriteContacts.isNotEmpty())
         val currAdapter = getRecyclerAdapter()
 
+        // 收藏页默认用网格 —— 设计稿的收藏页就是两列卡片。
+        // 只在用户没主动改过视图类型时生效（改过就尊重用户的选择）。
+        if (!context.config.hasCustomFavoritesViewType) {
+            context.config.viewType = VIEW_TYPE_GRID
+            context.config.hasCustomFavoritesViewType = true
+        }
         val viewType = context.config.viewType
         setFavoritesViewType(viewType)
         initZoomListener(viewType)

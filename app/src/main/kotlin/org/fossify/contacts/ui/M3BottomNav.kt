@@ -27,14 +27,19 @@ class M3BottomNav(private val container: LinearLayout) {
     data class Item(
         @DrawableRes val icon: Int,
         @StringRes val label: Int,
+        /** 选中时换成实心版本。M3 用「空心=未选/实心=已选」表达状态，
+         *  只靠颜色区分对色觉障碍用户不友好。 */
+        @DrawableRes val iconSelected: Int = icon,
     )
 
     private val views = mutableListOf<View>()
+    private var itemDefs = listOf<Item>()
     private var selectedIndex = -1
 
     fun setItems(items: List<Item>, onSelect: (Int) -> Unit) {
         container.removeAllViews()
         views.clear()
+        itemDefs = items
 
         val inflater = LayoutInflater.from(container.context)
         items.forEachIndexed { index, item ->
@@ -69,6 +74,10 @@ class M3BottomNav(private val container: LinearLayout) {
             view.findViewById<View>(R.id.nav_pill).isSelected = on
             view.isSelected = on
 
+            val items = itemDefs
+            view.findViewById<ImageView>(R.id.nav_icon).apply {
+                items.getOrNull(i)?.let { setImageResource(if (on) it.iconSelected else it.icon) }
+            }
             view.findViewById<ImageView>(R.id.nav_icon).setColorFilter(
                 context.themeColor(
                     if (on) MaterialR.attr.colorOnSecondaryContainer
@@ -91,7 +100,8 @@ class M3BottomNav(private val container: LinearLayout) {
         // 资源合并后同名的会被统一到 app 的 R —— 但 Kotlin 引用必须写对包。
         fun defaultItems() = listOf(
             Item(R.drawable.ic_m3_group, org.fossify.commons.R.string.contacts_tab),
-            Item(R.drawable.ic_m3_star, org.fossify.commons.R.string.favorites_tab),
+            Item(R.drawable.ic_m3_star, org.fossify.commons.R.string.favorites_tab,
+                iconSelected = R.drawable.ic_m3_star_filled),
             Item(R.drawable.ic_m3_settings, org.fossify.commons.R.string.settings),
         )
     }

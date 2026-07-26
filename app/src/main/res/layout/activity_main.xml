@@ -216,16 +216,17 @@
             android:id="@+id/main_privacy_badge"
             android:layout_width="@dimen/privacy_badge_size"
             android:layout_height="@dimen/privacy_badge_size"
-            android:layout_marginStart="@dimen/m3_fab_margin"
-            android:layout_marginBottom="@dimen/m3_fab_margin"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="6dp"
             android:background="@drawable/privacy_badge_background"
             android:contentDescription="@string/privacy_badge_content_description"
             android:elevation="@dimen/privacy_badge_elevation"
             android:padding="@dimen/privacy_badge_padding"
             android:src="@drawable/ic_m3_lock"
             android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/main_bottom_nav"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/main_profile_avatar"
+            app:layout_constraintEnd_toStartOf="@+id/main_profile_avatar"
+            app:layout_constraintTop_toTopOf="@+id/main_profile_avatar"
             tools:visibility="visible" />
 
         <!-- 拨号盘按钮。原来在列表正下方居中，会和扩展 FAB 抢位置，
@@ -235,14 +236,14 @@
             android:layout_width="@dimen/dialpad_button_size"
             android:layout_height="@dimen/dialpad_button_size"
             android:layout_marginStart="@dimen/m3_fab_margin"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="@dimen/m3_fab_margin"
             android:background="@drawable/circle_background"
             android:contentDescription="@string/dialpad"
             android:elevation="4dp"
             android:padding="@dimen/activity_margin"
             android:src="@drawable/ic_dialpad_vector"
             android:visibility="gone"
-            app:layout_constraintBottom_toTopOf="@+id/main_privacy_badge"
+            app:layout_constraintBottom_toTopOf="@+id/main_bottom_nav"
             app:layout_constraintStart_toStartOf="parent" />
 
         <!-- ══════════════════ 底部导航 ══════════════════
