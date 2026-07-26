@@ -9,7 +9,17 @@
         android:label="@string/privacy_permission_label"
         android:protectionLevel="signature" />
 
+    <!-- 交给自家电话 App 的受限同步凭据（calls 子密钥 + 短期访问令牌）。
+         signature 级：只有同一把证书签名的 App 能拿到。 -->
+    <permission
+        android:name="org.fossify.permission.VAULT_BRIDGE"
+        android:description="@string/vault_bridge_permission_description"
+        android:label="@string/vault_bridge_permission_label"
+        android:protectionLevel="signature" />
+
     <uses-permission android:name="org.fossify.permission.READ_PRIVATE_CONTACTS" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS" />
@@ -41,8 +51,10 @@
     </queries>
 
     <application
-        android:name="org.fossify.commons.FossifyApp"
-        android:allowBackup="true"
+        android:name=".ContactsApp"
+        android:allowBackup="false"
+        android:fullBackupContent="@xml/backup_rules"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:appCategory="social"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_launcher_name"
@@ -93,6 +105,22 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".sync.ui.SyncSetupActivity"
+            android:configChanges="orientation"
+            android:exported="false"
+            android:label="@string/sync_title"
+            android:parentActivityName=".activities.SettingsActivity"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".sync.ui.LocalEncryptionActivity"
+            android:configChanges="orientation"
+            android:exported="false"
+            android:label="@string/local_encryption_title"
+            android:parentActivityName=".activities.SettingsActivity"
+            android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".activities.GroupContactsActivity"
@@ -253,6 +281,14 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+
+        <!-- 把 calls 子密钥和短期令牌交给电话 App。
+             交出去的不是 DEK 本身，电话 App 解不开任何一条联系人。 -->
+        <provider
+            android:name=".sync.bridge.VaultBridgeProvider"
+            android:authorities="org.fossify.contacts.vaultbridge"
+            android:exported="true"
+            android:readPermission="org.fossify.permission.VAULT_BRIDGE" />
 
         <provider
             android:name=".contentproviders.MyContactsContentProvider"

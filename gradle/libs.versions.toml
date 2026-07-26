@@ -18,6 +18,15 @@ indicatorfastscroll = "4524cd0b61"
 room = "2.8.4"
 #Fossify
 commons = "6.1.6"
+#加密同步
+okhttp = "4.12.0"
+argon2kt = "1.6.0"
+work = "2.10.0"
+securityCrypto = "1.1.0-alpha06"
+sqlcipher = "4.6.1"
+androidxSqlite = "2.4.0"
+androidxTestJunit = "1.2.1"
+androidxTestRunner = "1.6.2"
 #Gradle
 gradlePlugins-agp = "9.1.0"
 #build
@@ -43,6 +52,15 @@ androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref =
 compose-detekt = { module = "io.nlopez.compose.rules:detekt", version.ref = "detektCompose" }
 #Fossify
 fossify-commons = { module = "org.fossify:commons", version.ref = "commons" }
+#加密同步
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+argon2kt = { module = "com.lambdapioneer.argon2kt:argon2kt", version.ref = "argon2kt" }
+androidx-work-runtime = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
+androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "securityCrypto" }
+sqlcipher = { module = "net.zetetic:sqlcipher-android", version.ref = "sqlcipher" }
+androidx-sqlite = { module = "androidx.sqlite:sqlite", version.ref = "androidxSqlite" }
+androidx-test-junit = { module = "androidx.test.ext:junit", version.ref = "androidxTestJunit" }
+androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidxTestRunner" }
 [bundles]
 room = [
     "androidx-room-ktx",

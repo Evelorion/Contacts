@@ -15,6 +15,7 @@ import org.fossify.contacts.extensions.config
 import org.fossify.contacts.extensions.showContactSourcePicker
 import org.fossify.contacts.helpers.VcfImporter
 import org.fossify.contacts.helpers.VcfImporter.ImportResult.IMPORT_FAIL
+import org.fossify.contacts.sync.work.SyncScheduler
 
 class ImportContactsDialog(val activity: SimpleActivity, val path: String, private val callback: (refreshView: Boolean) -> Unit) {
     private var targetContactSource = ""
@@ -86,6 +87,10 @@ class ImportContactsDialog(val activity: SimpleActivity, val path: String, priva
                 else -> org.fossify.commons.R.string.importing_failed
             }
         )
+        if (result != IMPORT_FAIL) {
+            // 导入可能一次进来几百条，立刻推一次比等周期任务好
+            SyncScheduler.syncNow(activity, "import")
+        }
         callback(result != IMPORT_FAIL)
     }
 }

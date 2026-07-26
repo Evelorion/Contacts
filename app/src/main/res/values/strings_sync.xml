@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  同步与本地加密相关的文案。单独一个文件，方便和上游 Fossify 的 strings.xml 分开维护，
+  合并上游更新时不会打架。
+-->
+<resources>
+
+    <!-- 设置页入口 -->
+    <string name="sync_title">加密同步</string>
+    <string name="sync_summary">把联系人加密后存到你自己的服务器，多设备双向同步</string>
+    <string name="local_encryption_title">本地数据库加密</string>
+    <string name="local_encryption_summary">给手机上的联系人数据库加一层加密</string>
+
+    <!-- 权限说明。这两条会出现在系统的权限详情页里，
+         写清楚一点，别让用户以为是可疑权限。 -->
+    <string name="privacy_permission_label">读取私密联系人</string>
+    <string name="privacy_permission_description">允许同一开发者签名的应用读取本机的私密联系人</string>
+    <string name="vault_bridge_permission_label">读取同步凭据</string>
+    <string name="vault_bridge_permission_description">允许同一开发者签名的应用取得受限的同步密钥，用于加密自己的数据</string>
+
+    <!-- 配置 -->
+    <string name="sync_intro">联系人会加密后存到你自己的服务器上。服务器只拿得到密文，没有主口令谁都解不开。</string>
+    <string name="sync_server_url_hint">服务器地址，例如 https://contacts.example.com</string>
+    <string name="sync_username_hint">用户名</string>
+    <string name="sync_passphrase_hint">主口令（至少 10 个字符）</string>
+    <string name="sync_passphrase_note">主口令不会上传，也无法找回。建议用一句只有你知道的话，比单个词安全得多。</string>
+    <string name="sync_invite_hint">邀请码（注册时需要，登录不需要）</string>
+    <string name="sync_register">新建账号</string>
+    <string name="sync_login">登录已有账号</string>
+
+    <!-- 解锁 -->
+    <string name="sync_locked_intro">保险库已锁定，需要主口令才能读写同步数据。</string>
+    <string name="sync_unlock">解锁</string>
+    <string name="sync_forgot_passphrase">忘记主口令？用恢复码解锁，然后在设置里改一个新口令。</string>
+    <string name="sync_recovery_code_hint">恢复码（14 组 4 字符）</string>
+    <string name="sync_unlock_with_recovery">用恢复码解锁</string>
+
+    <!-- 恢复码 -->
+    <string name="sync_recovery_title">请把下面这串恢复码抄下来，放在安全的地方。</string>
+    <string name="sync_recovery_warning">它不会再显示第二次。忘记主口令又没有恢复码时，服务器上的数据谁都解不开 —— 包括我们自己。这正是端到端加密的意思。</string>
+    <string name="sync_recovery_done">我已经抄下来了</string>
+    <string name="sync_recovery_confirm">确认已经把恢复码抄下来了？\n\n它不会再显示第二次。忘记主口令又没有恢复码时，服务器上的数据谁都解不开。</string>
+
+    <!-- 状态与操作 -->
+    <string name="sync_now">立即同步</string>
+    <string name="sync_lock_vault">锁定保险库</string>
+    <string name="sync_sign_out">断开这台设备</string>
+    <string name="sync_sign_out_confirm">断开这台设备的同步？本机的联系人不会被删除，服务器上的数据也保留。之后要重新登录才能继续同步。</string>
+    <string name="sync_never_run">还没有同步过</string>
+    <string name="sync_cache_on_device">在本机记住密钥（不用每次开 App 都输口令）</string>
+    <string name="sync_require_screen_lock">使用密钥前需要屏幕锁验证</string>
+    <string name="sync_storage_warning">这台设备的加密存储不可用，登录令牌只能以普通方式保存。数据本身仍然是加密的，但建议给手机设置屏幕锁。</string>
+
+    <!-- 本地加密 -->
+    <string name="local_encryption_intro">给手机上存联系人的数据库加一层加密。挡住的是「拿到设备文件」的攻击者，比如 adb backup、拆闪存、别的 App 的路径遍历漏洞。</string>
+    <string name="local_encryption_root_note">需要说清楚：前两档挡不住 root。App 自己得能开库，密钥就必须在 App 拿得到的地方。想挡住 root 只有第三档，代价是解锁前整个通讯录不可用。</string>
+    <string name="local_encryption_mode_keystore">Keystore 保管（推荐）</string>
+    <string name="local_encryption_mode_keystore_desc">开机即可用，通讯录和来电显示都正常</string>
+    <string name="local_encryption_mode_screen_lock">Keystore + 屏幕锁验证</string>
+    <string name="local_encryption_mode_screen_lock_desc">锁屏状态下就算 root 了也开不了库。代价：开机后第一次用要验证指纹或 PIN，在那之前来电显示查不到私密联系人</string>
+    <string name="local_encryption_mode_passphrase">由主口令派生</string>
+    <string name="local_encryption_mode_passphrase_desc">唯一能挡住 root 的模式。Keystore 里什么都不存。代价：每次进程启动都要输主口令，后台同步和来电显示在解锁前都不可用</string>
+    <string name="local_encryption_switching">正在给数据库换钥匙，请不要退出…</string>
+    <string name="local_encryption_switch_done">已切换</string>
+
+    <!-- 签名指纹 -->
+    <string name="sync_fingerprint_label">本机签名指纹</string>
+
+</resources>

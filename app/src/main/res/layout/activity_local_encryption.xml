@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  本地数据库加密的模式切换页。
+
+  版面上把「挡不住 root」这句放在三个选项之前，是刻意的：
+  用户如果以为前两档能挡 root，会基于错误的预期做安全决策。
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="12dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/switching_hint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:text="@string/local_encryption_switching"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/local_encryption_intro"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/encryption_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/local_encryption_root_note"
+            android:textSize="13sp" />
+
+        <!-- ============================ 三档模式 ============================ -->
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <RadioButton
+                android:id="@+id/mode_keystore"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/local_encryption_mode_keystore" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/local_encryption_mode_keystore_desc"
+                android:textSize="12sp" />
+
+            <RadioButton
+                android:id="@+id/mode_screen_lock"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/local_encryption_mode_screen_lock" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/local_encryption_mode_screen_lock_desc"
+                android:textSize="12sp" />
+
+            <RadioButton
+                android:id="@+id/mode_passphrase"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/local_encryption_mode_passphrase" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:text="@string/local_encryption_mode_passphrase_desc"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/passphrase_unavailable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="4dp"
+                android:text="需要先配置加密同步账号才能使用这一档"
+                android:textSize="12sp"
+                android:visibility="gone" />
+        </RadioGroup>
+
+        <TextView
+            android:id="@+id/mode_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textSize="13sp" />
+
+        <!-- ==================== 需要主口令时才出现 ==================== -->
+        <LinearLayout
+            android:id="@+id/passphrase_prompt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="这次切换需要用主口令给数据库换钥匙，请输入："
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/passphrase_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/sync_passphrase_hint"
+                android:importantForAutofill="no"
+                android:inputType="textPassword"
+                android:maxLines="1" />
+
+            <Button
+                android:id="@+id/passphrase_confirm_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="确认切换" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

@@ -131,6 +131,7 @@ import org.fossify.contacts.helpers.KEY_EMAIL
 import org.fossify.contacts.helpers.KEY_NAME
 import java.util.LinkedList
 import java.util.Locale
+import org.fossify.contacts.sync.work.SyncScheduler
 
 class EditContactActivity : ContactActivity() {
     companion object {
@@ -1409,6 +1410,7 @@ class EditContactActivity : ContactActivity() {
         }
 
         if (ContactsHelper(this@EditContactActivity).insertContact(contact!!)) {
+            SyncScheduler.syncNow(this, "insert")
             if (deleteCurrentContact) {
                 contact!!.source = originalContactSource
                 ContactsHelper(this).deleteContact(contact!!, false) {
@@ -1429,6 +1431,7 @@ class EditContactActivity : ContactActivity() {
     private fun updateContact(photoUpdateStatus: Int, primaryState: Pair<PhoneNumber?, PhoneNumber?>) {
         isSaving = true
         if (ContactsHelper(this@EditContactActivity).updateContact(contact!!, photoUpdateStatus)) {
+            SyncScheduler.syncNow(this, "update")
             val status = getPrimaryNumberStatus(primaryState.first, primaryState.second)
             if (status != PrimaryNumberStatus.UNCHANGED) {
                 updateDefaultNumberForDuplicateContacts(primaryState, status) {

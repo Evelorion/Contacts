@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 11 及以下的备份规则。
+
+  这里把所有东西都排除掉。原来 AndroidManifest 里写的是 allowBackup="true"，
+  那意味着任何能执行 adb backup 的人（拿到解锁设备 + 开了 USB 调试）
+  可以把私密联系人的整个 Room 数据库导出来 —— 这直接绕过了
+  signature 权限那一层保护。
+
+  代价是用户换手机时通讯录不会自动跟过去。但这个 App 本来就有服务器同步了，
+  换机走同步恢复更可靠，也不需要把明文交给厂商的云备份。
+-->
+<full-backup-content>
+    <exclude domain="database" path="." />
+    <exclude domain="sharedpref" path="." />
+    <exclude domain="file" path="." />
+    <exclude domain="external" path="." />
+    <exclude domain="root" path="." />
+</full-backup-content>

@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  同步配置页。三个区块靠代码切换可见性：
+    sync_setup_form    未配置
+    sync_unlock_form   已配置但锁定
+    sync_status_group  已解锁
+  sync_recovery_panel 只在刚注册完显示一次。
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <ProgressBar
+            android:id="@+id/sync_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="12dp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/sync_storage_warning"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:padding="12dp"
+            android:text="这台设备的加密存储不可用，登录令牌只能以普通方式保存。数据本身仍然是加密的，但建议给手机设置屏幕锁。"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
+        <!-- ============================ 首次配置 ============================ -->
+        <LinearLayout
+            android:id="@+id/sync_setup_form"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="联系人会加密后存到你自己的服务器上。服务器只拿得到密文，没有主口令谁都解不开。"
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/sync_server_url"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="服务器地址，例如 https://contacts.example.com"
+                android:importantForAutofill="no"
+                android:inputType="textUri"
+                android:maxLines="1" />
+
+            <EditText
+                android:id="@+id/sync_username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="用户名"
+                android:importantForAutofill="no"
+                android:inputType="text"
+                android:maxLines="1" />
+
+            <EditText
+                android:id="@+id/sync_passphrase"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="主口令（至少 10 个字符）"
+                android:importantForAutofill="no"
+                android:inputType="textPassword"
+                android:maxLines="1" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="主口令不会上传，也无法找回。建议用一句只有你知道的话，比单个词安全得多。"
+                android:textSize="12sp" />
+
+            <EditText
+                android:id="@+id/sync_invite_code"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="邀请码（注册时需要，登录不需要）"
+                android:importantForAutofill="no"
+                android:inputType="text"
+                android:maxLines="1" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/sync_register_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:text="新建账号" />
+
+                <Button
+                    android:id="@+id/sync_login_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="登录已有账号" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ============================ 解锁 ============================ -->
+        <LinearLayout
+            android:id="@+id/sync_unlock_form"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:text="保险库已锁定，需要主口令才能读写同步数据。"
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/sync_unlock_passphrase"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="主口令"
+                android:importantForAutofill="no"
+                android:inputType="textPassword"
+                android:maxLines="1" />
+
+            <Button
+                android:id="@+id/sync_unlock_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="解锁" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="忘记主口令？用恢复码解锁，然后在设置里改一个新口令。"
+                android:textSize="13sp" />
+
+            <EditText
+                android:id="@+id/sync_recovery_code"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="恢复码（14 组 4 字符）"
+                android:importantForAutofill="no"
+                android:inputType="textCapCharacters"
+                android:maxLines="2" />
+
+            <Button
+                android:id="@+id/sync_recovery_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="用恢复码解锁" />
+        </LinearLayout>
+
+        <!-- ============================ 已解锁 ============================ -->
+        <LinearLayout
+            android:id="@+id/sync_status_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/sync_account"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/sync_last_run"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/sync_pending"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/sync_conflicts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/sync_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textSize="13sp"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/sync_now_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="立即同步" />
+
+            <Button
+                android:id="@+id/sync_lock_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="锁定保险库" />
+
+            <Button
+                android:id="@+id/sync_sign_out_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="断开这台设备" />
+        </LinearLayout>
+
+        <!-- ====================== 恢复码（只显示一次） ====================== -->
+        <LinearLayout
+            android:id="@+id/sync_recovery_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="请把下面这串恢复码抄下来，放在安全的地方。"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:text="它不会再显示第二次。忘记主口令又没有恢复码时，服务器上的数据谁都解不开 —— 包括我们自己。这正是端到端加密的意思。"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/sync_recovery_display"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:textIsSelectable="true"
+                android:textSize="16sp"
+                android:typeface="monospace" />
+
+            <Button
+                android:id="@+id/sync_recovery_done_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="我已经抄下来了" />
+        </LinearLayout>
+
+        <!-- ============================ 通用 ============================ -->
+        <CheckBox
+            android:id="@+id/sync_cache_on_device"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:checked="true"
+            android:text="在本机记住密钥（不用每次开 App 都输口令）" />
+
+        <CheckBox
+            android:id="@+id/sync_require_screen_lock"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="使用密钥前需要屏幕锁验证" />
+
+        <TextView
+            android:id="@+id/sync_fingerprint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:textIsSelectable="true"
+            android:textSize="11sp"
+            android:typeface="monospace" />
+    </LinearLayout>
+</ScrollView>

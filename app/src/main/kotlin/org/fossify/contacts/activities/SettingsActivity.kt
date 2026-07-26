@@ -23,6 +23,11 @@ import org.fossify.contacts.helpers.VcfExporter
 import java.io.OutputStream
 import java.util.Locale
 import kotlin.system.exitProcess
+import org.fossify.contacts.sync.VaultManager
+import org.fossify.contacts.sync.localdb.EncryptedDatabases
+import org.fossify.contacts.sync.localdb.EncryptionMode
+import org.fossify.contacts.sync.ui.LocalEncryptionActivity
+import org.fossify.contacts.sync.ui.SyncSetupActivity
 
 class SettingsActivity : SimpleActivity() {
     companion object {
@@ -68,6 +73,8 @@ class SettingsActivity : SimpleActivity() {
         setupManageAutomaticBackups()
         setupExportContacts()
         setupImportContacts()
+        setupSync()
+        setupLocalEncryption()
         updateTextColors(binding.settingsHolder)
 
         arrayOf(
@@ -77,9 +84,36 @@ class SettingsActivity : SimpleActivity() {
             binding.settingsMainScreenLabel,
             binding.settingsListViewLabel,
             binding.settingsBackupsLabel,
-            binding.settingsMigratingLabel
+            binding.settingsMigratingLabel,
+            binding.settingsSyncSectionLabel
         ).forEach {
             it.setTextColor(getProperPrimaryColor())
+        }
+    }
+
+    /**
+     * 加密同步的入口。状态文字在这里填 —— 用户不点进去也能看出同步在不在跑。
+     */
+    private fun setupSync() {
+        val vault = VaultManager.get(this)
+        binding.settingsSyncStatus.text = when {
+            !vault.isConfigured -> getString(R.string.sync_summary)
+            !vault.isUnlocked -> "已配置，保险库锁定中"
+            else -> "已启用 · ${vault.session.username}"
+        }
+        binding.settingsSyncHolder.setOnClickListener {
+            startActivity(Intent(this, SyncSetupActivity::class.java))
+        }
+    }
+
+    private fun setupLocalEncryption() {
+        binding.settingsLocalEncryptionStatus.text = when {
+            EncryptedDatabases.contactsDbEncrypted -> "已加密（${EncryptionMode.current(this).name}）"
+            EncryptedDatabases.lastError.isNotEmpty() -> "未加密：${EncryptedDatabases.lastError}"
+            else -> getString(R.string.local_encryption_summary)
+        }
+        binding.settingsLocalEncryptionHolder.setOnClickListener {
+            startActivity(Intent(this, LocalEncryptionActivity::class.java))
         }
     }
 

@@ -36,6 +36,8 @@ import org.fossify.contacts.helpers.ALL_TABS_MASK
 import org.fossify.contacts.helpers.tabsList
 import org.fossify.contacts.interfaces.RefreshContactsListener
 import java.util.Arrays
+import org.fossify.contacts.sync.localdb.EncryptedDatabases
+import org.fossify.contacts.sync.work.SyncScheduler
 
 class MainActivity : SimpleActivity(), RefreshContactsListener {
     private var werePermissionsHandled = false
@@ -84,6 +86,9 @@ class MainActivity : SimpleActivity(), RefreshContactsListener {
 
     override fun onResume() {
         super.onResume()
+        // 回到前台顺手同步一次。SyncEngine 靠全量扫描发现本地改动，
+        // 不埋这行也不会丢数据，只是会晚到下一次周期任务。
+        SyncScheduler.syncNow(this, "resume")
         if (storedShowPhoneNumbers != config.showPhoneNumbers) {
             System.exit(0)
             return
@@ -157,6 +162,10 @@ class MainActivity : SimpleActivity(), RefreshContactsListener {
         super.onDestroy()
         if (!isChangingConfigurations) {
             ContactsDatabase.destroyInstance()
+            // destroyInstance 把 commons 的静态实例清成 null，
+            // 下次 getInstance() 会重建一个**明文**实例去开已经加密的文件 —— 直接崩。
+            // 必须立刻用当前口令重新装回加密层。
+            EncryptedDatabases.install(this)
         }
     }
 

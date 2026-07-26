@@ -36,6 +36,7 @@ android {
         targetSdk = project.libs.versions.app.build.targetSDK.get().toInt()
         versionName = project.property("VERSION_NAME").toString()
         versionCode = project.property("VERSION_CODE").toString().toInt()
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas")
         }
@@ -141,6 +142,15 @@ detekt {
 
 dependencies {
     implementation(libs.fossify.commons)
+
+    // 加密同步
+    implementation(libs.okhttp)                    // 手写 HTTP 调用，不引 Retrofit
+    implementation(libs.argon2kt)                  // Argon2id，Android 没有内置实现
+    implementation(libs.androidx.work.runtime)     // 后台同步调度
+    implementation(libs.androidx.security.crypto)  // 令牌的加密存储
+    implementation(libs.sqlcipher)                 // 本地数据库加密
+    implementation(libs.androidx.sqlite)
+
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.autofittextview)
     implementation(libs.ezvcard)
@@ -148,4 +158,7 @@ dependencies {
     implementation(libs.bundles.room)
     ksp(libs.androidx.room.compiler)
     detektPlugins(libs.compose.detekt)
+
+    androidTestImplementation(libs.androidx.test.junit)
+    androidTestImplementation(libs.androidx.test.runner)
 }
