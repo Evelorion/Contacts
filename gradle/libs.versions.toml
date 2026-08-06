@@ -28,7 +28,7 @@ androidxSqlite = "2.4.0"
 androidxTestJunit = "1.2.1"
 androidxTestRunner = "1.6.2"
 #Gradle
-gradlePlugins-agp = "9.1.0"
+gradlePlugins-agp = "9.2.1"
 #build
 app-build-compileSDKVersion = "36"
 app-build-targetSDK = "36"
